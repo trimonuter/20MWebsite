@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
 
-    <script src="main.js"></script>
+    <script src="main.js" defer></script>
 </head>
 <body>
     <nav id="navbar">
@@ -21,40 +21,14 @@
 
     </div>
     <main id="main">
-        <div class="card">
-            <h1 class="rank">1</h1>
-                <img src="https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg" alt="">
-            <h1>Non-widenheimer</h1>
-            <h1 class="score">9.07</h1>
-        </div>
-
-        <div class="card">
-            <h1 class="rank">1</h1>
-                <img src="https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg" alt="">
-            <h1>Non-widenheimer</h1>
-            <h1 class="score">9.07</h1>
-        </div>
-
-        <div class="card">
-            <h1 class="rank">1</h1>
-                <img src="https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg" alt="">
-            <h1>Non-widenheimer</h1>
-            <h1 class="score">9.07</h1>
-        </div>
-
-        <div class="card">
-            <h1 class="rank">1</h1>
-                <img src="https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg" alt="">
-            <h1>Non-widenheimer</h1>
-            <h1 class="score">9.07</h1>
-        </div>
-
-        <div class="card">
-            <h1 class="rank">1</h1>
-                <img src="https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg" alt="">
-            <h1>Non-widenheimer</h1>
-            <h1 class="score">9.07</h1>
-        </div>
+        <template id="card-template">
+            <div class="card">
+                <h1 data-count class="rank">1</h1>
+                <img data-poster src="https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg" alt="">
+                <h1 data-title>Non-widenheimer</h1>
+                <h1 data-rating class="score">9.07</h1>
+            </div>
+        </template>
     </main>
 
 </body>
