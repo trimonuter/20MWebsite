@@ -20,6 +20,7 @@ body {
     gap: 20px;
     background-color: rgb(92, 51, 0);
     justify-content: center;
+    z-index: 100;
 }
 
 #navbar a {
@@ -57,7 +58,8 @@ main {
 }
 
 .card:hover {
-    transform: scale(107%);
+    transform: scale(105%);
+    color: yellow;
 }
 
 .card img {
