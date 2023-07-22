@@ -6,6 +6,7 @@ const main = document.getElementById("main")
 
 /**
  * @typedef {{
+ *  URL: string,
  *  posterURL: string,
  *  title: string,
  *  season: string,
@@ -26,6 +27,7 @@ function createCard(rank, data){
     clone.querySelector("[data-poster]").src = data.posterURL
 
     clone.querySelector("[data-title]").innerHTML = data.title
+    if(data.URL) clone.querySelector("[data-title]").href = data.URL
     clone.querySelector("[data-season]").innerHTML = data.season
 
     clone.querySelector("[data-rating]").innerHTML = data.rating
@@ -40,14 +42,16 @@ const FILM_LIST = [
         posterURL: "https://cinemags.org/wp-content/uploads/2023/05/Oppenheimer-poster.jpg",
         rating: "9.09",
         season: "Fall 2016",
-        members: "1.5M"
+        members: "1.5M",
+        URL: "https://google.com"
     },
     {
         title: "Barbie",
         posterURL: "https://deadline.com/wp-content/uploads/2023/04/barbie-BARBIE_VERT_TSR_W_TALENT_2764x4096_DOM_rgb.jpg?w=800",
         rating: "9.05",
         season: "Summer 2023",
-        members: "1.0M"
+        members: "1.0M",
+        URL: "https://google.com"
     }
 ]
 
