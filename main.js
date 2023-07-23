@@ -15,6 +15,12 @@ const main = document.getElementById("main")
  * }} Data
  */
 
+async function fetchAnimeData() {
+    const response = await fetch("http://localhost:3000/scrape"); // Replace with your backend API endpoint
+    const animeList = await response.json();
+    return animeList;
+  }
+
 /**
  * @param {number} count 
  * @param {Data} data 
@@ -66,47 +72,16 @@ function createCard(rank, data){
 // /** @type {Data[]} */
 // const ANIME_LIST = []
 
-const puppeteer = require("puppeteer");
-
-let animeList = []; // Declare an empty list outside the async function
-
-async function scrapeData() {
-  const browser = await puppeteer.launch();
-  const page = await browser.newPage();
-  await page.goto('https://myanimelist.net/topanime.php');
-
-  const getAllAnime = await page.evaluate(() => {
-    const ANIME_LIST = [];
-    const allAnime = document.querySelectorAll(".di-ib.clearfix h3 a");
-    const allPosters = document.querySelectorAll(".hoverinfo_trigger.fl-l.ml12.mr8 img");
-    const allScores = document.querySelectorAll(".score.ac.fs14 span");
-    const allURL = document.querySelectorAll(".hoverinfo_trigger.fl-l.ml12.mr8");
-
-    for (let i = 0; i < allAnime.length; i++){
-      const data = {
-        title: allAnime[i].innerHTML,
-        posterURL: allPosters[i].getAttribute("src"),
-        rating: parseFloat(allScores[i].innerHTML),
-        season: "Fall 2016",
-        members: "1.5M",
-        URL: allURL[i].getAttribute("href")
-      };
-
-      ANIME_LIST.push(data);
-    };
-
-    return ANIME_LIST;
-  });
-
-  animeList = getAllAnime; // Store the result in the variable outside the async function
-
-  await browser.close();
-}
-
-scrapeData().then(() => {
-//   console.log(animeList); // Access the scraped data outside the async function
-  for(let i = 0; i < animeList.length; i++){
-      const card = createCard(i + 1, animeList[i])
-      main.append(card)
-  };
-});
+(async () => {
+    try {
+      const animeList = await fetchAnimeData();
+      animeList.sort((a, b) => b.rating - a.rating);
+  
+      for (let i = 0; i < animeList.length; i++) {
+        const card = createCard(i + 1, animeList[i]);
+        main.append(card);
+      }
+    } catch (error) {
+      console.error("Error fetching anime data:", error);
+    }
+  })();
