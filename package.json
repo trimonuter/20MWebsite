@@ -1,0 +1,23 @@
+{
+  "name": "website-jelek",
+  "version": "1.0.0",
+  "description": "Ini adalah website yang akan menghasilkan cuan 20 juta per bulan dan digunakan pemerintah untuk kegunaan militer",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trimonuter/20MWebsite.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/trimonuter/20MWebsite/issues"
+  },
+  "homepage": "https://github.com/trimonuter/20MWebsite#readme",
+  "dependencies": {
+    "puppeteer": "^20.9.0"
+  }
+}
