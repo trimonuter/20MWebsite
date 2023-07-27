@@ -11,14 +11,16 @@ app.use(cors());
 // Handle fetchHTML request
 app.get('/fetchHTML', async (req, res) => {
     try {
-        const response = await fetch('https://myanimelist.net/topanime.php');
-        if (!response.ok) {
-            throw new Error('Network response was not ok.');
-          }
-        const text = await response.text();
+        let joinedText = "";
+        for (i = 0; i < 6; i++){
+            const response = await fetch(`https://myanimelist.net/topanime.php?limit=${i * 50}`);
+            const text = await response.text();
+
+            joinedText += text;
+        }
     
         res.setHeader('Content-Type', 'text/plain');
-        res.send(text);
+        res.send(joinedText);
     } catch (error) {
         console.error('Error fetching data:', error);
         res.status(500).send('Error fetching data');
