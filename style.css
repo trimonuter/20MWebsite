@@ -65,6 +65,10 @@ a {
     border-bottom: 3px solid blue;
 }
 
+#hiddenHTML {
+    display: none;
+}
+
 main {
     margin: auto 0;
     display: flex;
