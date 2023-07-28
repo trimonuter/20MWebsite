@@ -12,7 +12,7 @@ app.use(cors());
 app.get('/fetchHTML', async (req, res) => {
     try {
         let joinedText = "";
-        for (i = 0; i < 6; i++){
+        for (i = 0; i < 4; i++){
             const response = await fetch(`https://myanimelist.net/topanime.php?limit=${i * 50}`);
             const text = await response.text();
 
