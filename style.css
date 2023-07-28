@@ -1,9 +1,9 @@
 body {
-    background-color: #60B38C;
-    color: rgb(237, 229, 229);
+    background-color: #5E29CC;
+    color: rgb(54, 50, 64);
     display: flex;
     flex-direction: column;
-    font-family: 'Merriweather', serif;
+    font-family: 'Ubuntu', sans-serif;
     margin: 0;
 }
 
@@ -23,7 +23,7 @@ a {
     height: 70px;
     flex-direction: row;
     gap: 20px;
-    background-color: #B35B4F;
+    background-color: #7453ED;
     justify-content: center;
     z-index: 100;
 }
@@ -34,7 +34,7 @@ a {
 }
 
 #navbar a:hover {
-    color: yellow;
+    color: rgb(227, 227, 218);
     font-size: 115%;
 }
 
@@ -53,16 +53,17 @@ a {
 }
 
 #search-input:hover {
-    transform: scale(115%);
+    transform: scale(110%);
     border-bottom: 3px solid blue;
 }
 
 #search-input:focus {
-    background-color: yellow;
-    transform: scale(115%);
+    background-color: #25e69c;
+    transform: scale(110%);
     outline: none;
     box-shadow: none;
     border-bottom: 3px solid blue;
+    color: rgb(20, 20, 20);
 }
 
 #hiddenHTML {
@@ -79,7 +80,7 @@ main {
 }
 
 .card {
-    background-color: #B35B4F;
+    background-color: #7453ED;
     width: 85%;
     max-width: 1000px;
     height: 100px;
@@ -89,12 +90,12 @@ main {
     gap: 25px;
     margin: auto 0;
     align-items: center;
-    transition: all 0.3s;
+    transition: all 0.15s;
 }
 
 .card:hover {
-    transform: scale(105%);
-    color: yellow;
+    transform: scale(107%);
+    color: rgb(227, 227, 218);
     box-shadow: yellow;
 }
 
