@@ -91,17 +91,35 @@ main {
     margin: auto 0;
     align-items: center;
     transition: all 0.15s;
+    border-radius: 10px;
 }
 
 .card:hover {
     transform: scale(107%);
-    color: rgb(227, 227, 218);
+    color: rgb(221, 94, 221);
     box-shadow: yellow;
+}
+
+.card .rank {
+    background-color: #5E29CC;
+    border-radius: 7px;
+    padding: 7px;
 }
 
 .card img {
     max-width: 100%;
     max-height: 100%;
+    border-radius: 5px;
+}
+
+.card .score-container {
+   background-color: #5E29CC;
+   padding: 7px;
+   border-radius: 10px;
+}
+
+.card .members {
+    font-size: 18px;
 }
 
 .title-container {
