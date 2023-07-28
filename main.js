@@ -34,6 +34,7 @@ function createCard(rank, data){
     clone.querySelector("[data-members]").innerHTML = data.members
     return clone
 }
+
 // Function for huge number formatting (M, K)
 function formatNumber(num) {
     if (num >= 1000000) {

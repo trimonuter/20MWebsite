@@ -1,5 +1,5 @@
 body {
-    background-color: #5E29CC;
+    background-color: #1e0f3c;
     color: rgb(54, 50, 64);
     display: flex;
     flex-direction: column;
@@ -96,7 +96,7 @@ main {
 
 .card:hover {
     transform: scale(107%);
-    color: rgb(221, 94, 221);
+    color: rgb(252, 44, 252);
     box-shadow: yellow;
 }
 
