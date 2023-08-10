@@ -95,7 +95,7 @@ main {
 
 .card:hover {
     color: white;
-    background-color: black;
+    background-color: #138A36;
     box-shadow: yellow;
     cursor: pointer;
 }

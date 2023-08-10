@@ -66,9 +66,9 @@ async function getTopAnimeData() {
             id: x.mal_id,
             title: x.title,
             posterURL: x.images.jpg.image_url,
-            score: x.score,
-            season: `${x.season} ${x.year}`,
-            members: formatNumber(parseInt(`${x.members}`)),
+            score: x.score.toFixed(2),
+            season: formatSeason(x),
+            members: formatNumber(x.members),
             URL: x.url
         }
 
@@ -76,6 +76,31 @@ async function getTopAnimeData() {
     });
 
     return animeData;
+}
+
+function formatSeason(dat) {
+    if (dat.season) {
+        return `${dat.season} ${dat.year}`
+    }
+    else {
+        const airedOn = dat.aired.prop.from;
+        let season;
+        switch (true) {
+            case airedOn.month < 4:
+                season = 'Winter';
+                break;
+            case airedOn.month < 7:
+                season = 'Spring';
+                break;
+            case airedOn.month < 10:
+                season = 'Summer';
+                break;
+            case airedOn.month < 13:
+                season = 'Fall';
+        }
+
+        return `${season} ${airedOn.year}`
+    }
 }
 
 // Add cards from data
