@@ -85,8 +85,36 @@ function formatSeason(dat) {
 
 // ===================== Main program =====================
 // ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
+let currentPage = 0;
+// let animeData = [];
+// async function getAnimeData() {
+//     while (currentPage < 10) {
+//         const data = await fetchData(`https://api.jikan.moe/v4/anime?page=${page}`);
+//         for (const x of data) {
+//             const singleAnimeData = await fetchData(`https://api.jikan.moe/v4/anime/${x.mal_id}/full`);
+//             const relationsValues = Object.values(data.relations).map(x => x.relation);
+//             console.log(relationsValues)
+
+//             const dat = {
+//                 id: x.mal_id,
+//                 title: x.title,
+//                 posterURL: x.images.jpg.image_url,
+//                 score: x.score.toFixed(2),
+//                 season: formatSeason(x),
+//                 members: formatNumber(x.members),
+//                 URL: x.url,
+//                 isSequel: relationsValues.includes('Prequel') ? true : false
+//             }
+
+//             animeData.push(dat);
+//             console.log(dat.isSequel)
+//             await new Promise(resolve => setTimeout(resolve, 600 + offset));
+//         }
+//     }
+// }
+
 async function getTopAnimeData(page) {
-    const res = await fetch(`https://api.jikan.moe/v4/top/anime?page=${page}`);
+    const res = await fetch(`https://api.jikan.moe/v4/top/anime`);
     const resJSON = await res.json();
     data = resJSON.data;
 
@@ -109,8 +137,9 @@ async function getTopAnimeData(page) {
 
         animeData.push(dat);
         console.log(dat.isSequel)
-        await new Promise(resolve => setTimeout(resolve, 350));
+        await new Promise(resolve => setTimeout(resolve, 370));
     }
+    await new Promise(resolve => setTimeout(resolve, 1000));
     return animeData;
 }
 
@@ -124,23 +153,22 @@ async function fetchData(url) {
 // ~~~~~~~~~~ Add cards from data ~~~~~~~~~~
 let isRunning = false;
 let currentRank = 1;
-let currentPage = 0;
 
 function addData() {
-    if (isRunning) { // If function is already running, don't start a new async operation 
-        return;
-    }
-    // If function isn't already running, start code
-    isRunning = true;
+    // if (isRunning) { // If function is already running, don't start a new async operation 
+    //     return;
+    // }
+    // // If function isn't already running, start code
+    // isRunning = true;
     currentPage += 1;
     getTopAnimeData(currentPage)
         .then(dat => {
             for (i = 0; i < dat.length; i++) {
                 const card = createCard(currentRank, dat[i]);
                 main.append(card);
-                currentRank += 1
+                currentRank += 1;
             }
-            isRunning = false
+            isRunning = false;
         })
 }
 
@@ -150,13 +178,17 @@ addData(currentPage)
 
 window.addEventListener('scroll', checkScroll); // Check user scroll
 function checkScroll() {
+    if (isRunning) {
+        return;
+    }
     const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
     const scrollY = window.scrollY; // Total distance scrolled
     const clientHeight = document.documentElement.clientHeight; // Total height of user window screen
 
     const userPosition = scrollY + clientHeight;
     if (userPosition + 2500 >= scrollHeight) {
-        console.log('running')
+        isRunning = true;
+        console.log('running');
         addData(currentPage);
     }
 }

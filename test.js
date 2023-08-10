@@ -5,4 +5,6 @@ const dat = {
     'this': 'is an object'
 }
 
-console.log(Object.values(dat).includes('Adaptation'))
+const offset = 0
+x = (offset > 0) ? 'yea' : 'ok'
+console.log(x)
