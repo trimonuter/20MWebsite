@@ -32,6 +32,9 @@ function createCard(rank, data){
 
     clone.querySelector("[data-score]").innerHTML = data.score
     clone.querySelector("[data-members]").innerHTML = data.members
+    
+    clone.querySelector('.card').dataset.isSequel = data.isSequel
+    console.log(clone.querySelector('.card').outerHTML)
     return clone
 }
 // ===================== Helper Functions =====================
@@ -88,7 +91,11 @@ async function getTopAnimeData(page) {
     data = resJSON.data;
 
     animeData = [];
-    data.forEach(x => {
+    for (const x of data) {
+        const data = await fetchData(`https://api.jikan.moe/v4/anime/${x.mal_id}/full`);
+        const relationsValues = Object.values(data.relations).map(x => x.relation);
+        console.log(relationsValues)
+
         const dat = {
             id: x.mal_id,
             title: x.title,
@@ -96,15 +103,24 @@ async function getTopAnimeData(page) {
             score: x.score.toFixed(2),
             season: formatSeason(x),
             members: formatNumber(x.members),
-            URL: x.url
+            URL: x.url,
+            isSequel: relationsValues.includes('Prequel') ? true : false
         }
 
         animeData.push(dat);
-    });
-
+        console.log(dat.isSequel)
+        await new Promise(resolve => setTimeout(resolve, 350));
+    }
     return animeData;
 }
 
+async function fetchData(url) {
+    const res = await fetch(url);
+    const resJSON = await res.json();
+    data = resJSON.data;
+
+    return data;
+}
 // ~~~~~~~~~~ Add cards from data ~~~~~~~~~~
 let isRunning = false;
 let currentRank = 1;
