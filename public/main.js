@@ -54,30 +54,7 @@ function formatNumber(num) {
     }
 }
 
-// Get top anime data
-async function getTopAnimeData() {
-    const res = await fetch('https://api.jikan.moe/v4/top/anime');
-    const resJSON = await res.json();
-    data = resJSON.data;
-
-    animeData = [];
-    data.forEach(x => {
-        const dat = {
-            id: x.mal_id,
-            title: x.title,
-            posterURL: x.images.jpg.image_url,
-            score: x.score.toFixed(2),
-            season: formatSeason(x),
-            members: formatNumber(x.members),
-            URL: x.url
-        }
-
-        animeData.push(dat);
-    });
-
-    return animeData;
-}
-
+// Format season string
 function formatSeason(dat) {
     if (dat.season) {
         return `${dat.season} ${dat.year}`
@@ -103,11 +80,66 @@ function formatSeason(dat) {
     }
 }
 
-// Add cards from data
-getTopAnimeData()
-    .then(dat => {
-        for (i = 0; i < dat.length; i++) {
-            const card = createCard(i + 1, dat[i]);
-            main.append(card);
+// Get top anime data
+async function getTopAnimeData(page) {
+    const res = await fetch(`https://api.jikan.moe/v4/top/anime?page=${page}`);
+    const resJSON = await res.json();
+    data = resJSON.data;
+
+    animeData = [];
+    data.forEach(x => {
+        const dat = {
+            id: x.mal_id,
+            title: x.title,
+            posterURL: x.images.jpg.image_url,
+            score: x.score.toFixed(2),
+            season: formatSeason(x),
+            members: formatNumber(x.members),
+            URL: x.url
         }
-    })
+
+        animeData.push(dat);
+    });
+
+    return animeData;
+}
+
+// Add cards from data
+let isRunning = false;
+let currentRank = 1;
+let currentPage = 0;
+
+function addData() {
+    if (isRunning) {
+        return;
+    }
+    isRunning = true;
+    currentPage += 1;
+    getTopAnimeData(currentPage)
+        .then(dat => {
+            for (i = 0; i < dat.length; i++) {
+                const card = createCard(currentRank, dat[i]);
+                main.append(card);
+                currentRank += 1
+            }
+            isRunning = false
+        })
+}
+
+// Add more data when scrolling
+const body = document.querySelector('body');
+addData(currentPage)
+
+window.addEventListener('scroll', checkScroll); // Check user scroll
+
+function checkScroll() {
+    const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
+    const scrollY = window.scrollY; // Total distance scrolled
+    const clientHeight = document.documentElement.clientHeight; // Total height of user window screen
+
+    const userPosition = scrollY + clientHeight;
+    if (userPosition + 2500 >= scrollHeight) {
+        console.log('running')
+        addData(currentPage);
+    }
+}
