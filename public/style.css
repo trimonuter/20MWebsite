@@ -30,12 +30,11 @@ a {
 
 #navbar a {
     text-decoration: none;
-    transition: all 0.5s;
+    transition: all 0.1s;
 }
 
 #navbar a:hover {
     color: rgb(227, 227, 218);
-    font-size: 115%;
 }
 
 #searchbar {
@@ -95,9 +94,10 @@ main {
 }
 
 .card:hover {
-    transform: scale(107%);
-    color: rgb(252, 44, 252);
+    color: white;
+    background-color: black;
     box-shadow: yellow;
+    cursor: pointer;
 }
 
 .card .rank {
@@ -129,6 +129,10 @@ main {
 
 .title-container * {
     margin: 0;
+}
+
+h3[data-season] {
+    text-transform: capitalize;
 }
 
 .score-container {

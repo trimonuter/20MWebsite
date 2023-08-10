@@ -10,7 +10,7 @@ const main = document.getElementById("main")
  *  posterURL: string,
  *  title: string,
  *  season: string,
- *  rating: number,
+ *  score: number,
  *  members: string
  * }} Data
  */
@@ -30,7 +30,7 @@ function createCard(rank, data){
     if(data.URL) clone.querySelector("[data-title]").href = data.URL
     clone.querySelector("[data-season]").innerHTML = data.season
 
-    clone.querySelector("[data-rating]").innerHTML = data.rating
+    clone.querySelector("[data-score]").innerHTML = data.score
     clone.querySelector("[data-members]").innerHTML = data.members
     return clone
 }
@@ -54,47 +54,35 @@ function formatNumber(num) {
     }
 }
 
+// Get top anime data
+async function getTopAnimeData() {
+    const res = await fetch('https://api.jikan.moe/v4/top/anime');
+    const resJSON = await res.json();
+    data = resJSON.data;
 
-function createList(container) {
-    const ANIME_LIST = [];
-    const allAnime = container.querySelectorAll(".di-ib.clearfix h3 a");
-    const allPosters = container.querySelectorAll(".hoverinfo_trigger.fl-l.ml12.mr8 img");
-    const allScores = container.querySelectorAll(".score.ac.fs14 span");
-    const allMemberAmount = container.querySelectorAll(".information.di-ib.mt4")
-    const allURL = container.querySelectorAll(".hoverinfo_trigger.fl-l.ml12.mr8");
+    animeData = [];
+    data.forEach(x => {
+        const dat = {
+            id: x.mal_id,
+            title: x.title,
+            posterURL: x.images.jpg.image_url,
+            score: x.score,
+            season: `${x.season} ${x.year}`,
+            members: formatNumber(parseInt(`${x.members}`)),
+            URL: x.url
+        }
 
-    for (let i = 0; i < allAnime.length; i++) {
-        const data = {
-        title: allAnime[i].innerHTML,
-        posterURL: allPosters[i].getAttribute("data-src"),
-        rating: parseFloat(allScores[i].innerHTML).toFixed(2),
-        season: "Fall 2016",
-        members: formatNumber(parseInt(allMemberAmount[i].textContent.replace(/[^\S\n]+/g, '').split('\n')[3].replace(/,/g, ''))),
-        URL: allURL[i].getAttribute("href")
-        };
+        animeData.push(dat);
+    });
 
-        ANIME_LIST.push(data);
-    }
-
-    return ANIME_LIST;
+    return animeData;
 }
 
-function addCards(){
-    fetch('http://localhost:3000/fetchHTML')
-        .then(response => response.text()) 
-        .then(text => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = text;
-
-            animeList = createList(tempDiv);
-            for(let i = 0; i < animeList.length; ++i){
-                const card = createCard(i + 1, animeList[i])
-                main.append(card)
-            };
-        })
-        .catch(error => {
-          console.error('Error:', error);
-        });
-}
-
-addCards()
+// Add cards from data
+getTopAnimeData()
+    .then(dat => {
+        for (i = 0; i < dat.length; i++) {
+            const card = createCard(i + 1, dat[i]);
+            main.append(card);
+        }
+    })
