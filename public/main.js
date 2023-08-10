@@ -10,7 +10,7 @@ const main = document.getElementById("main")
  *  posterURL: string,
  *  title: string,
  *  season: string,
- *  rating: number,
+ *  score: number,
  *  members: string
  * }} Data
  */
@@ -30,7 +30,7 @@ function createCard(rank, data){
     if(data.URL) clone.querySelector("[data-title]").href = data.URL
     clone.querySelector("[data-season]").innerHTML = data.season
 
-    clone.querySelector("[data-rating]").innerHTML = data.rating
+    clone.querySelector("[data-score]").innerHTML = data.score
     clone.querySelector("[data-members]").innerHTML = data.members
     return clone
 }
@@ -54,47 +54,92 @@ function formatNumber(num) {
     }
 }
 
-
-function createList(container) {
-    const ANIME_LIST = [];
-    const allAnime = container.querySelectorAll(".di-ib.clearfix h3 a");
-    const allPosters = container.querySelectorAll(".hoverinfo_trigger.fl-l.ml12.mr8 img");
-    const allScores = container.querySelectorAll(".score.ac.fs14 span");
-    const allMemberAmount = container.querySelectorAll(".information.di-ib.mt4")
-    const allURL = container.querySelectorAll(".hoverinfo_trigger.fl-l.ml12.mr8");
-
-    for (let i = 0; i < allAnime.length; i++) {
-        const data = {
-        title: allAnime[i].innerHTML,
-        posterURL: allPosters[i].getAttribute("data-src"),
-        rating: parseFloat(allScores[i].innerHTML).toFixed(2),
-        season: "Fall 2016",
-        members: formatNumber(parseInt(allMemberAmount[i].textContent.replace(/[^\S\n]+/g, '').split('\n')[3].replace(/,/g, ''))),
-        URL: allURL[i].getAttribute("href")
-        };
-
-        ANIME_LIST.push(data);
+// Format season string
+function formatSeason(dat) {
+    if (dat.season) {
+        return `${dat.season} ${dat.year}`
     }
+    else {
+        const airedOn = dat.aired.prop.from;
+        let season;
+        switch (true) {
+            case airedOn.month < 4:
+                season = 'Winter';
+                break;
+            case airedOn.month < 7:
+                season = 'Spring';
+                break;
+            case airedOn.month < 10:
+                season = 'Summer';
+                break;
+            case airedOn.month < 13:
+                season = 'Fall';
+        }
 
-    return ANIME_LIST;
+        return `${season} ${airedOn.year}`
+    }
 }
 
-function addCards(){
-    fetch('http://localhost:3000/fetchHTML')
-        .then(response => response.text()) 
-        .then(text => {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = text;
+// Get top anime data
+async function getTopAnimeData(page) {
+    const res = await fetch(`https://api.jikan.moe/v4/top/anime?page=${page}`);
+    const resJSON = await res.json();
+    data = resJSON.data;
 
-            animeList = createList(tempDiv);
-            for(let i = 0; i < animeList.length; ++i){
-                const card = createCard(i + 1, animeList[i])
-                main.append(card)
-            };
+    animeData = [];
+    data.forEach(x => {
+        const dat = {
+            id: x.mal_id,
+            title: x.title,
+            posterURL: x.images.jpg.image_url,
+            score: x.score.toFixed(2),
+            season: formatSeason(x),
+            members: formatNumber(x.members),
+            URL: x.url
+        }
+
+        animeData.push(dat);
+    });
+
+    return animeData;
+}
+
+// Add cards from data
+let isRunning = false;
+let currentRank = 1;
+let currentPage = 0;
+
+function addData() {
+    if (isRunning) {
+        return;
+    }
+    isRunning = true;
+    currentPage += 1;
+    getTopAnimeData(currentPage)
+        .then(dat => {
+            for (i = 0; i < dat.length; i++) {
+                const card = createCard(currentRank, dat[i]);
+                main.append(card);
+                currentRank += 1
+            }
+            isRunning = false
         })
-        .catch(error => {
-          console.error('Error:', error);
-        });
 }
 
-addCards()
+// Add more data when scrolling
+const body = document.querySelector('body');
+addData(currentPage)
+
+window.addEventListener('scroll', checkScroll); // Check user scroll
+
+function checkScroll() {
+    const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
+    const scrollY = window.scrollY; // Total distance scrolled
+    const clientHeight = document.documentElement.clientHeight; // Total height of user window screen
+
+    const userPosition = scrollY + clientHeight;
+    if (userPosition + 2500 >= scrollHeight) {
+        console.log('running')
+        addData(currentPage);
+    }
+}
