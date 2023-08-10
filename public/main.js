@@ -34,7 +34,7 @@ function createCard(rank, data){
     clone.querySelector("[data-members]").innerHTML = data.members
     return clone
 }
-
+// ===================== Helper Functions =====================
 // Function for huge number formatting (M, K)
 function formatNumber(num) {
     if (num >= 1000000) {
@@ -80,7 +80,8 @@ function formatSeason(dat) {
     }
 }
 
-// Get top anime data
+// ===================== Main program =====================
+// ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
 async function getTopAnimeData(page) {
     const res = await fetch(`https://api.jikan.moe/v4/top/anime?page=${page}`);
     const resJSON = await res.json();
@@ -104,15 +105,16 @@ async function getTopAnimeData(page) {
     return animeData;
 }
 
-// Add cards from data
+// ~~~~~~~~~~ Add cards from data ~~~~~~~~~~
 let isRunning = false;
 let currentRank = 1;
 let currentPage = 0;
 
 function addData() {
-    if (isRunning) {
+    if (isRunning) { // If function is already running, don't start a new async operation 
         return;
     }
+    // If function isn't already running, start code
     isRunning = true;
     currentPage += 1;
     getTopAnimeData(currentPage)
@@ -126,12 +128,11 @@ function addData() {
         })
 }
 
-// Add more data when scrolling
+// ~~~~~~~~~~ Add more data when scrolling ~~~~~~~~~~
 const body = document.querySelector('body');
 addData(currentPage)
 
 window.addEventListener('scroll', checkScroll); // Check user scroll
-
 function checkScroll() {
     const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
     const scrollY = window.scrollY; // Total distance scrolled
@@ -143,3 +144,24 @@ function checkScroll() {
         addData(currentPage);
     }
 }
+
+// ===================== Event Listeners =====================
+toggleSequels = document.getElementById('toggle-sequels');
+tsColor = 'red'
+toggleSequels.addEventListener('click', () => {
+    if (tsColor === 'red') {
+        toggleSequels.style.backgroundColor = 'green';
+        toggleSequels.style.color = 'white'
+        toggleSequels.style.border = '5px solid green';
+        tsColor = 'green'
+
+        toggleSequels.textContent = 'Sequels: disabled';
+    } else {
+        toggleSequels.style.backgroundColor = 'red';
+        toggleSequels.style.color = 'white';
+        toggleSequels.style.border = '5px solid red';
+        tsColor = 'red'
+
+        toggleSequels.textContent = 'Sequels: enabled';
+    }
+})
