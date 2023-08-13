@@ -130,9 +130,40 @@ main {
     margin-top: 10px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    /* gap: 15px; */
     align-items: center;
+}
 
+/* .card-container {
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    width: 85%;
+    margin: auto 0;
+} */
+
+.card-dropdown {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px;
+    width: 85%;
+
+    background-color: #401fb8;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.card-dropdown * {
+    margin: 0;
+}
+
+.dropdown-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+
+    color: rgb(167, 186, 255);
 }
 
 .card {
@@ -140,15 +171,16 @@ main {
     flex-direction: row;
     padding: 15px;
     margin: auto 0;
+    margin-top: 15px;
     align-items: center;
     
-    max-width: 1000px;
     width: 85%;
     height: 100px;
     gap: 25px;
     
     background-color: #7453ED;
-    border-radius: 10px;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
     transition: all 0.15s;
 }
 

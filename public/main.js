@@ -32,10 +32,14 @@ function createCard(rank, data){
 
     clone.querySelector("[data-score]").innerHTML = data.score
     clone.querySelector("[data-members]").innerHTML = data.members
+
+    clone.querySelector('.no-sequel-rank').textContent = data.isSequel ? '# -' : `#${data.noSequelRank}`
+    clone.querySelector('.sequel-rank').textContent = `#${rank}`
+    clone.querySelector('.popularity').textContent = `#${data.popularity}`
     
     clone.querySelector('.card').dataset.isSequel = data.isSequel
     clone.querySelector('.card').dataset.nosequelRank = data.noSequelRank
-    clone.querySelector('.card').dataset.sequel = rank
+    clone.querySelector('.card').dataset.sequelRank = rank
     return clone
 }
 // ===================== Helper Functions =====================
@@ -100,7 +104,6 @@ async function freeze(ms) {
 
 // ===================== Main program =====================
 // ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
-let maxPage = 0;
 let animeData = {};
 let iterationDelay = 400;
 let incorrectRankEntries = [43608];
@@ -108,11 +111,16 @@ let noSequel = 0;
 let currentPage = 0;
 let revert;
 
+let cardList = document.querySelectorAll('.card');
+let toggleSequels = document.getElementById('toggle-sequels');
+let tsColor = 'red';
+let showSequels = true;
+
 // Main code for fetching anime data
 (async () => {
-    while (maxPage <= 10) {
+    while (currentPage <= 10) {
         // Array of anime data, each data is an object
-        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${maxPage + 1}`);
+        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${currentPage + 1}`);
         console.log(data);
 
         // Iterate through every object in data
@@ -136,8 +144,8 @@ let revert;
         }
 
         // Add cards to HTML page
-        maxPage += 1;
         appendCards();
+        currentPage += 1;
 
         // Freeze 1 second before fetching new page
         await freeze(1000);
@@ -150,7 +158,6 @@ async function pushSingleAnimeData(obj) {
     const relationsValues = Object.values(singleAnimeData.relations).map(obj => obj.relation);
 
     const isSequel = relationsValues.includes('Prequel') ? true : false;
-    noSequel += isSequel ? 0 : 1;
 
     const dat = {
         id: obj.mal_id,
@@ -161,7 +168,8 @@ async function pushSingleAnimeData(obj) {
         members: formatNumber(obj.members),
         URL: obj.url,
         isSequel: isSequel,
-        noSequelRank: noSequel
+        noSequelRank: 0,
+        popularity: obj.popularity
     }
 
     if (incorrectRankEntries.includes(obj.mal_id)) {
@@ -177,44 +185,53 @@ async function pushSingleAnimeData(obj) {
 
 // Add cards to HTML page
 function appendCards() {
-    keyStart = (25 * currentPage) + 1;
-    keyEnd = 25 * (currentPage + 1)
+    const keyStart = (25 * currentPage) + 1;
+    const keyEnd = 25 * (currentPage + 1)
     // console.log(Object.keys(animeData))
 
+    // Remove toggle sequels event listener
+    if (currentPage > 0) {
+        toggleSequels.removeEventListener('click', () => {
+            toggleSequelsFunction(cardList);
+        })
+    }
+    // Add cards to main
     for (i = keyStart; i <= keyEnd; i++) {
         if (Object.keys(animeData).includes(`${i}`)) {
+            // Counter for no-sequel rank
+            noSequel += animeData[i].isSequel ? 0 : 1;
+            animeData[i].noSequelRank = noSequel
+
             const card = createCard(i, animeData[i]);
             main.append(card);
         }
     }
-    currentPage += 1; 
+    // Update toggle sequels event listener
+    cardList = document.querySelectorAll('.card');
+    toggleSequels.addEventListener('click', () => {
+        toggleSequelsFunction(cardList);
+    });
+
+    toggleSequels = document.getElementById('toggle-sequels');
 }
 
-// // ===================== Event Listeners =====================
-// toggleSequels = document.getElementById('toggle-sequels');
-// tsColor = 'red'
-// toggleSequels.addEventListener('click', () => {
-//     if (tsColor === 'red') {
-//         toggleSequels.style.backgroundColor = 'green';
-//         toggleSequels.style.color = 'white'
-//         toggleSequels.style.border = '5px solid green';
-//         tsColor = 'green'
-
-//         toggleSequels.textContent = 'Sequels: disabled';
-//     } else {
-//         toggleSequels.style.backgroundColor = 'red';
-//         toggleSequels.style.color = 'white';
-//         toggleSequels.style.border = '5px solid red';
-//         tsColor = 'red'
-
-//         toggleSequels.textContent = 'Sequels: enabled';
-//     }
-//     console.log('toggled')
-//     const cardList = document.querySelectorAll('.card');
-//     cardList.forEach(card => {
-//         card.querySelector('.rank').textContent = card.dataset.nosequelRank
-//         if (card.dataset.isSequel === 'true') {
-//             card.style.display = 'none';
-//         }
-//     })
-// })
+// ===================== Event Listeners =====================
+function toggleSequelsFunction(list) {
+    tsColor = tsColor === 'red' ? 'green' : 'red';
+    
+    // Toggle button color
+    toggleSequels.style.backgroundColor = `${tsColor}`;
+    toggleSequels.style.color = 'white';
+    toggleSequels.style.border = `5px solid ${tsColor}`;
+    
+    // Toggle button text
+    toggleSequels.textContent = tsColor === 'red' ? 'Sequels: enabled' : 'Sequels: disabled'
+    
+    console.log('toggled');
+    list.forEach(card => {
+        card.querySelector('.rank').textContent = showSequels ? card.dataset.sequelRank : card.dataset.nosequelRank;
+        if (card.dataset.isSequel === 'true') {
+            card.style.display = showSequels ? 'flex' : 'none';
+        }
+    })
+}
