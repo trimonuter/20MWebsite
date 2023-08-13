@@ -40,6 +40,13 @@ function createCard(rank, data){
     clone.querySelector('.card').dataset.isSequel = data.isSequel
     clone.querySelector('.card').dataset.nosequelRank = data.noSequelRank
     clone.querySelector('.card').dataset.sequelRank = rank
+
+    const dropdown = clone.querySelector('.card-dropdown');
+    clone.querySelector('.card').addEventListener('click', () => {
+        console.log('clicked')
+        dropdown.style.maxHeight = dropdown.style.maxHeight === '0px' ? `${dropdown.scrollHeight}px` : '0px';
+        // dropdown.style.padding = dropdown.style.padding === '0px' ? '15px' : '0px'
+    })
     return clone
 }
 // ===================== Helper Functions =====================
