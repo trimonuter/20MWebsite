@@ -86,8 +86,7 @@ function formatSeason(dat) {
 
 // ===================== Main program =====================
 // ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
-let currentPage = 0;
-let noSequel = 0;
+let maxPage = 0;
 let animeData = {};
 let iterationDelay = 400;
 let incorrectRankEntries = [43608]
@@ -97,13 +96,13 @@ async function freeze(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Fetch through top anime data
+// Main code for fetching anime data
 (async () => {
-    currentPage += 1;
-    while (currentPage <= 3) {
+    maxPage += 1;
+    while (maxPage <= 3) {
         // Array of anime data, each data is an object
-        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${currentPage}`);
-        console.log(data)
+        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${maxPage}`);
+        console.log(data);
 
         // Iterate through every object in data
         for (const x of data) {
@@ -121,23 +120,24 @@ async function freeze(ms) {
         }
 
         // Add cards to HTML page
-        appendCards();
-        currentPage += 1;
+        if (maxPage === 1) {
+            appendCards();
+        }
+        maxPage += 1;
 
         // Freeze 1 second before fetching new page
         await freeze(1000);
     }
 })();
 
+let noSequel = 0;
 // Push anime data to animeData object
 async function pushSingleAnimeData(obj) {
     const singleAnimeData = await fetchData(`https://api.jikan.moe/v4/anime/${obj.mal_id}/full`);
     const relationsValues = Object.values(singleAnimeData.relations).map(obj => obj.relation);
 
     const isSequel = relationsValues.includes('Prequel') ? true : false;
-    // console.log(isSequel);
     noSequel += isSequel ? 0 : 1;
-    // console.log(noSequel);
 
     const dat = {
         id: obj.mal_id,
@@ -163,6 +163,7 @@ async function pushSingleAnimeData(obj) {
 }
 
 // Add cards to HTML page
+let currentPage = 1;
 function appendCards() {
     keyStart = (25 * (currentPage - 1)) + 1;
     keyEnd = 25 * currentPage
@@ -173,6 +174,28 @@ function appendCards() {
             const card = createCard(i, animeData[i]);
             main.append(card);
         }
+    }
+    currentPage += 1; 
+}
+
+// // ~~~~~~~~~~ Add more data when scrolling ~~~~~~~~~~
+const body = document.querySelector('body');
+let isRunning = false;
+
+window.addEventListener('scroll', checkScroll); // Check user scroll
+function checkScroll() {
+    if (isRunning) {
+        return;
+    }
+    const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
+    const scrollY = window.scrollY; // Total distance scrolled
+    const clientHeight = document.documentElement.clientHeight; // Total height of user window screen
+
+    const userPosition = scrollY + clientHeight;
+    if (userPosition + 2500 >= scrollHeight) {
+        isRunning = true;
+        console.log('running');
+        appendCards();
     }
 }
 
@@ -206,26 +229,6 @@ async function fetchData(url) {
 //         })
 // }
 
-// // ~~~~~~~~~~ Add more data when scrolling ~~~~~~~~~~
-// const body = document.querySelector('body');
-// addData(currentPage)
-
-// window.addEventListener('scroll', checkScroll); // Check user scroll
-// function checkScroll() {
-//     if (isRunning) {
-//         return;
-//     }
-//     const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
-//     const scrollY = window.scrollY; // Total distance scrolled
-//     const clientHeight = document.documentElement.clientHeight; // Total height of user window screen
-
-//     const userPosition = scrollY + clientHeight;
-//     if (userPosition + 2500 >= scrollHeight) {
-//         isRunning = true;
-//         console.log('running');
-//         addData(currentPage);
-//     }
-// }
 
 // // ===================== Event Listeners =====================
 // toggleSequels = document.getElementById('toggle-sequels');
