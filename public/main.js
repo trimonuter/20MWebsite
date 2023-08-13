@@ -84,53 +84,66 @@ function formatSeason(dat) {
     }
 }
 
-// ===================== Main program =====================
-// ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
-let maxPage = 0;
-let animeData = {};
-let iterationDelay = 400;
-let incorrectRankEntries = [43608]
+// Fetch a URL and return response.data
+async function fetchData(url) {
+    const res = await fetch(url);
+    const resJSON = await res.json();
+    const data = resJSON.data;
+
+    return data;
+}
 
 // Freeze code for a certain duration (in miliseconds)
 async function freeze(ms) {
     await new Promise(resolve => setTimeout(resolve, ms));
 }
 
+// ===================== Main program =====================
+// ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
+let maxPage = 0;
+let animeData = {};
+let iterationDelay = 400;
+let incorrectRankEntries = [43608];
+let noSequel = 0;
+let currentPage = 0;
+let revert;
+
 // Main code for fetching anime data
 (async () => {
-    maxPage += 1;
-    while (maxPage <= 3) {
+    while (maxPage <= 10) {
         // Array of anime data, each data is an object
-        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${maxPage}`);
+        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${maxPage + 1}`);
         console.log(data);
 
         // Iterate through every object in data
         for (const x of data) {
-            console.log(x.rank);
+            // console.log(x.rank);
             await pushSingleAnimeData(x);
 
             // Freeze requests for 0.4 seconds (1 second after 60 requests)
             await freeze(iterationDelay);
 
-            // Change delay from 0.4s to 1s after 60 requests
-            if (x.rank === 60) {
+            // Change delay from 0.4s to 0.75s after 60 requests
+            if (x.rank % 60 === 0) {
+                revert = x.rank + 35;
                 await freeze(10000);
-                iterationDelay = 1000;
+                iterationDelay = 750;
+            }
+            // Change delay from 0.75s to 0.45s after 30 requests
+            if (x.rank === revert) {
+                iterationDelay = 450
             }
         }
 
         // Add cards to HTML page
-        if (maxPage === 1) {
-            appendCards();
-        }
         maxPage += 1;
+        appendCards();
 
         // Freeze 1 second before fetching new page
         await freeze(1000);
     }
 })();
 
-let noSequel = 0;
 // Push anime data to animeData object
 async function pushSingleAnimeData(obj) {
     const singleAnimeData = await fetchData(`https://api.jikan.moe/v4/anime/${obj.mal_id}/full`);
@@ -163,11 +176,10 @@ async function pushSingleAnimeData(obj) {
 }
 
 // Add cards to HTML page
-let currentPage = 1;
 function appendCards() {
-    keyStart = (25 * (currentPage - 1)) + 1;
-    keyEnd = 25 * currentPage
-    console.log(Object.keys(animeData))
+    keyStart = (25 * currentPage) + 1;
+    keyEnd = 25 * (currentPage + 1)
+    // console.log(Object.keys(animeData))
 
     for (i = keyStart; i <= keyEnd; i++) {
         if (Object.keys(animeData).includes(`${i}`)) {
@@ -177,58 +189,6 @@ function appendCards() {
     }
     currentPage += 1; 
 }
-
-// // ~~~~~~~~~~ Add more data when scrolling ~~~~~~~~~~
-const body = document.querySelector('body');
-let isRunning = false;
-
-window.addEventListener('scroll', checkScroll); // Check user scroll
-function checkScroll() {
-    if (isRunning) {
-        return;
-    }
-    const scrollHeight = document.documentElement.scrollHeight; // Total height of the entire page, including not shown on screen
-    const scrollY = window.scrollY; // Total distance scrolled
-    const clientHeight = document.documentElement.clientHeight; // Total height of user window screen
-
-    const userPosition = scrollY + clientHeight;
-    if (userPosition + 2500 >= scrollHeight) {
-        isRunning = true;
-        console.log('running');
-        appendCards();
-    }
-}
-
-// Fetch a URL and return response.data
-async function fetchData(url) {
-    const res = await fetch(url);
-    const resJSON = await res.json();
-    const data = resJSON.data;
-
-    return data;
-}
-// // ~~~~~~~~~~ Add cards from data ~~~~~~~~~~
-// let isRunning = false;
-// let currentRank = 1;
-
-// function addData() {
-//     // if (isRunning) { // If function is already running, don't start a new async operation 
-//     //     return;
-//     // }
-//     // // If function isn't already running, start code
-//     // isRunning = true;
-//     currentPage += 1;
-//     getTopAnimeData(currentPage)
-//         .then(dat => {
-//             for (i = 0; i < dat.length; i++) {
-//                 const card = createCard(currentRank, dat[i]);
-//                 main.append(card);
-//                 currentRank += 1;
-//             }
-//             isRunning = false;
-//         })
-// }
-
 
 // // ===================== Event Listeners =====================
 // toggleSequels = document.getElementById('toggle-sequels');

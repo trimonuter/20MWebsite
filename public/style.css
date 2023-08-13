@@ -136,18 +136,20 @@ main {
 }
 
 .card {
-    background-color: #7453ED;
-    width: 85%;
-    max-width: 1000px;
-    height: 100px;
-    padding: 15px;
     display: flex;
     flex-direction: row;
-    gap: 25px;
+    padding: 15px;
     margin: auto 0;
     align-items: center;
-    transition: all 0.15s;
+    
+    max-width: 1000px;
+    width: 85%;
+    height: 100px;
+    gap: 25px;
+    
+    background-color: #7453ED;
     border-radius: 10px;
+    transition: all 0.15s;
 }
 
 .card:hover {
@@ -186,6 +188,7 @@ main {
 
 .title-container * {
     margin: 0;
+    text-overflow: ellipsis;
 }
 
 h3[data-season] {
