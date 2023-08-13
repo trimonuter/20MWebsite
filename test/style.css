@@ -1,0 +1,29 @@
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: purple;
+}
+
+.accordion-button {
+    padding: 10px;
+    margin-top: 15px;
+    text-align: left;
+    width: 100%;
+    
+    cursor: pointer;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+}
+  
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    padding: 0;
+
+    background-color: #f1f1f1;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    transition: max-height 0.3s ease-in-out, padding 0.3s ease-in-out;
+}

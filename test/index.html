@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="accordion">
+        <button class="accordion-button">Click to Expand</button>
+        <div class="accordion-content">
+          <!-- Content to be displayed when expanded -->
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </div>
+    </div>
+    <div class="accordion">
+        <button class="accordion-button">Click to Expand</button>
+        <div class="accordion-content">
+          <!-- Content to be displayed when expanded -->
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </div>
+    </div>
+    <div class="accordion">
+        <button class="accordion-button">Click to Expand</button>
+        <div class="accordion-content">
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        </div>
+    </div>
+
+    <script>
+        const accordionButtons = document.querySelectorAll('.accordion-button');
+
+        accordionButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                content.style.maxHeight = content.style.maxHeight === '0px' ? `${content.scrollHeight}px` : '0px';
+                content.style.padding = content.style.padding === '0px' ? '10px' : '0';
+            });
+        });
+    </script>
+</body>
+</html>
