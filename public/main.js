@@ -27,7 +27,7 @@ function createCard(rank, data){
     clone.querySelector("[data-poster]").src = data.posterURL
 
     clone.querySelector("[data-title]").innerHTML = data.title
-    if(data.URL) clone.querySelector("[data-title]").href = data.URL
+    // if(data.URL) clone.querySelector("[data-title]").href = data.URL
     clone.querySelector("[data-season]").innerHTML = data.season
 
     clone.querySelector("[data-score]").innerHTML = data.score
@@ -41,12 +41,32 @@ function createCard(rank, data){
     clone.querySelector('.card').dataset.nosequelRank = data.noSequelRank
     clone.querySelector('.card').dataset.sequelRank = rank
 
+    // Card clicked event listener
     const dropdown = clone.querySelector('.card-dropdown');
     clone.querySelector('.card').addEventListener('click', () => {
         console.log('clicked')
-        dropdown.style.maxHeight = dropdown.style.maxHeight === '0px' ? `${dropdown.scrollHeight}px` : '0px';
-        // dropdown.style.padding = dropdown.style.padding === '0px' ? '15px' : '0px'
+        dropdown.style.maxHeight = dropdown.style.maxHeight === '0px' ? `${dropdown.scrollHeight}px` : dropdown.style.maxHeight === '' ? `${dropdown.scrollHeight}px`: '0px';
     })
+
+    // Green rank for non-sequel entries
+    const cardRank = clone.querySelector('[data-rank]');
+    const titleContainer = clone.querySelector('.title-container')
+    const dropdownNSR = clone.querySelector('[data-nsr]');
+    if (!data.isSequel) {
+        cardRank.style.color = '#39FF14';
+        titleContainer.style.color = '#39FF14';
+        dropdownNSR.style.color = '#39FF14';
+
+        // dropdown.style.maxHeight = '90px';
+    }
+
+    // Yellow score for high popularity anime
+    const scoreContainer = clone.querySelector('.score-container');
+    const dropdownPopularity = clone.querySelector('[data-p]');
+    if (data.highPopularity) {
+        scoreContainer.style.color = 'yellow';
+        dropdownPopularity.style.color = 'yellow';
+    }
     return clone
 }
 // ===================== Helper Functions =====================
@@ -176,7 +196,8 @@ async function pushSingleAnimeData(obj) {
         URL: obj.url,
         isSequel: isSequel,
         noSequelRank: 0,
-        popularity: obj.popularity
+        popularity: obj.popularity,
+        highPopularity: obj.members > 700000
     }
 
     if (incorrectRankEntries.includes(obj.mal_id)) {
