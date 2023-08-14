@@ -23,7 +23,7 @@ function createCard(rank, data){
     /** @type {HTMLElement} */
     const clone = cardTemplate.content.cloneNode(true)
 
-    clone.querySelector("[data-rank]").innerHTML = rank
+    clone.querySelector("[data-rank]").innerHTML = showSequels ? rank : data.noSequelRank
     clone.querySelector("[data-poster]").src = data.posterURL
 
     clone.querySelector("[data-title]").innerHTML = data.title
@@ -42,6 +42,7 @@ function createCard(rank, data){
     clone.querySelector('.card').dataset.sequelRank = rank
 
     // Card clicked event listener
+    const card = clone.querySelector('.card');
     const dropdown = clone.querySelector('.card-dropdown');
     clone.querySelector('.card').addEventListener('click', () => {
         console.log('clicked')
@@ -52,6 +53,20 @@ function createCard(rank, data){
     if (rank === 1) {
         dropdown.style.maxHeight = '90px';
     }
+
+    // ====== Filtering code ======
+    // Hide sequels when showSequels = false
+    if (!showSequels) {
+        if (data.isSequel) {
+            card.style.display = 'none';
+            dropdown.style.display = 'none';
+        }
+    }
+
+    if (!dropdownsCollapsed) {
+        dropdown.style.maxHeight = '90px';
+    }
+    // Collapse dropdown when dropdowns:collapsed
 
     // Green title for non-sequel entries
     const cardRank = clone.querySelector('[data-rank]');
@@ -147,12 +162,15 @@ let cardList = document.querySelectorAll('.card');
 let toggleSequels = document.getElementById('toggle-sequels');
 let tsColor = 'red';
 let showSequels = true;
+let dropdownsCollapsed = true;
 
 let toggleDropdown = document.getElementById('toggle-dropdown');
 let tddColor = '#FF5F1F';
 
 // Main code for fetching anime data
 (async () => {
+    toggleSequels.addEventListener('click', toggleSequelsFunction);
+    toggleDropdown.addEventListener('click', toggleDropdownFunction);
     while (currentPage <= 10) {
         // Array of anime data, each data is an object
         const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${currentPage + 1}`);
@@ -226,17 +244,15 @@ function appendCards() {
     // console.log(Object.keys(animeData))
 
     // Remove toggle sequels event listener
-    if (currentPage > 0) {
-        toggleSequels.removeEventListener('click', toggleSequelsFunction);
-        toggleDropdown.removeEventListener('click', toggleDropdownFunction)
-    }
+    toggleSequels.removeEventListener('click', toggleSequelsFunction);
+    toggleDropdown.removeEventListener('click', toggleDropdownFunction)
     // Add cards to main
     for (i = keyStart; i <= keyEnd; i++) {
         if (Object.keys(animeData).includes(`${i}`)) {
             // Counter for no-sequel rank
             noSequel += animeData[i].isSequel ? 0 : 1;
-            animeData[i].noSequelRank = noSequel
-
+            animeData[i].noSequelRank = noSequel;
+        
             const card = createCard(i, animeData[i]);
             main.append(card);
         }
@@ -288,6 +304,7 @@ function toggleDropdownFunction() {
     toggleDropdown.textContent = tddColor === '#FF5F1F' ? 'Dropdowns: collapsed' : 'Dropdowns: expanded'
 
     console.log('toggled');
+    dropdownsCollapsed = !dropdownsCollapsed;
     const disable = tddColor === '#FF5F1F';
     cardList.forEach(card => {
         const dropdown = card.nextElementSibling;
