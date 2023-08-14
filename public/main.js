@@ -219,9 +219,7 @@ function appendCards() {
 
     // Remove toggle sequels event listener
     if (currentPage > 0) {
-        toggleSequels.removeEventListener('click', () => {
-            toggleSequelsFunction(cardList);
-        })
+        toggleSequels.removeEventListener('click', toggleSequelsFunction)
     }
     // Add cards to main
     for (i = keyStart; i <= keyEnd; i++) {
@@ -236,15 +234,13 @@ function appendCards() {
     }
     // Update toggle sequels event listener
     cardList = document.querySelectorAll('.card');
-    toggleSequels.addEventListener('click', () => {
-        toggleSequelsFunction(cardList);
-    });
+    toggleSequels.addEventListener('click', toggleSequelsFunction)
 
-    toggleSequels = document.getElementById('toggle-sequels');
+    console.log(animeData)
 }
 
 // ===================== Event Listeners =====================
-function toggleSequelsFunction(list) {
+function toggleSequelsFunction() {
     tsColor = tsColor === 'red' ? 'green' : 'red';
     
     // Toggle button color
@@ -256,10 +252,15 @@ function toggleSequelsFunction(list) {
     toggleSequels.textContent = tsColor === 'red' ? 'Sequels: enabled' : 'Sequels: disabled'
     
     console.log('toggled');
-    list.forEach(card => {
+    showSequels = !showSequels;
+    console.log(showSequels)
+    cardList.forEach(card => {
+        const dropdown = card.nextElementSibling;
+
         card.querySelector('.rank').textContent = showSequels ? card.dataset.sequelRank : card.dataset.nosequelRank;
         if (card.dataset.isSequel === 'true') {
             card.style.display = showSequels ? 'flex' : 'none';
+            dropdown.style.display = showSequels ? 'flex' : 'none';
         }
     })
 }
