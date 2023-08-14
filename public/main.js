@@ -302,11 +302,12 @@ function toggleSequelsFunction() {
     cardList.forEach(card => {
         const dropdown = card.nextElementSibling;
         const dataSeason = card.querySelector('[data-season]').textContent;
+        const title = card.querySelector('.title').textContent.toLowerCase();
 
         card.querySelector('.rank').textContent = showSequels ? card.dataset.sequelRank : card.dataset.nosequelRank;
         if (card.dataset.isSequel === 'true') {
-            card.style.display = (showSequels && dataSeason.includes(filterQuery)) ? 'flex' : 'none';
-            dropdown.style.display = (showSequels && dataSeason.includes(filterQuery)) ? 'flex' : 'none';
+            card.style.display = (showSequels && dataSeason.includes(filterQuery) && title.includes(searchbarQuery)) ? 'flex' : 'none';
+            dropdown.style.display = (showSequels && dataSeason.includes(filterQuery) && title.includes(searchbarQuery)) ? 'flex' : 'none';
         }
     })
 }
