@@ -68,6 +68,21 @@ function createCard(rank, data){
         dropdown.style.maxHeight = '90px';
     }
 
+    // Only show filtered cards when appending
+    const dataSeason = card.querySelector('[data-season]').textContent;
+    if (query === '') {
+        card.style.display = 'flex';
+        dropdown.style.display = 'flex';
+    } else {
+        if (!(dataSeason.includes(query))) {
+            card.style.display = 'none';
+            dropdown.style.display = 'none';
+        } else {
+            card.style.display = 'flex';
+            dropdown.style.display = 'flex';
+        }
+    }
+
     // Green title for non-sequel entries
     const cardRank = clone.querySelector('[data-rank]');
     const titleContainer = clone.querySelector('.title-container')
@@ -166,6 +181,8 @@ let dropdownsCollapsed = true;
 
 let toggleDropdown = document.getElementById('toggle-dropdown');
 let tddColor = '#FF5F1F';
+
+let query = '';
 
 // Main code for fetching anime data
 (async () => {
@@ -270,6 +287,10 @@ function appendCards() {
     console.log(animeData)
 }
 
+// Filter results by year
+const filterYear = document.getElementById('filter-year');
+filterYear.addEventListener('input', filterYearFunction)
+
 // ===================== Event Listeners =====================
 function toggleSequelsFunction() {
     tsColor = tsColor === 'red' ? 'green' : 'red';
@@ -287,11 +308,12 @@ function toggleSequelsFunction() {
     console.log(showSequels)
     cardList.forEach(card => {
         const dropdown = card.nextElementSibling;
+        const dataSeason = card.querySelector('[data-season]').textContent;
 
         card.querySelector('.rank').textContent = showSequels ? card.dataset.sequelRank : card.dataset.nosequelRank;
         if (card.dataset.isSequel === 'true') {
-            card.style.display = showSequels ? 'flex' : 'none';
-            dropdown.style.display = showSequels ? 'flex' : 'none';
+            card.style.display = (showSequels && dataSeason.includes(query)) ? 'flex' : 'none';
+            dropdown.style.display = (showSequels && dataSeason.includes(query)) ? 'flex' : 'none';
         }
     })
 }
@@ -312,6 +334,36 @@ function toggleDropdownFunction() {
     const disable = tddColor === '#FF5F1F';
     cardList.forEach(card => {
         const dropdown = card.nextElementSibling;
+        
         dropdown.style.maxHeight = disable ? '0px' : '90px';
+    })
+}
+
+function filterYearFunction() {
+    query = filterYear.value;
+    const cardList = document.querySelectorAll('.card');
+    console.log(query)
+
+    cardList.forEach(card => {
+        console.log(card.querySelector('.title').textContent)
+        const dropdown = card.nextElementSibling;
+        const dataSeason = card.querySelector('[data-season]').textContent;
+        // if (query === '') {
+        //     card.style.display = 'flex';
+        //     dropdown.style.display = 'flex';
+        // } else {
+        if (!(dataSeason.includes(query))) {
+            card.style.display = 'none';
+            dropdown.style.display = 'none';
+        } else {
+            if ((card.dataset.isSequel === 'false')) {
+                card.style.display = 'flex';
+                dropdown.style.display = 'flex';
+            } else {
+                card.style.display = showSequels ? 'flex' : 'none';
+                dropdown.style.display = showSequels ? 'flex' : 'none';
+            }
+            }
+        // }
     })
 }

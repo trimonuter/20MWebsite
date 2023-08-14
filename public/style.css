@@ -81,6 +81,7 @@ a {
 #toggle-sequels {
     margin: 0;
     padding: 7px;
+    justify-content: center;
 
     background-color: red;
     color: white;
@@ -112,6 +113,41 @@ a {
 #toggle-dropdown:hover {
     cursor: pointer !important;
     border: 5px solid white !important;
+}
+
+#filter-year-container {
+    max-width: 210px;
+    max-height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+}
+
+#filter-year-container h5 {
+    margin: 0;
+
+    color: white;
+    font-size: 18px;
+}
+
+#filter-year {
+    background-color: #1e0f3c;
+    color: white;
+    font-size: 20px;
+    font-family: 'Ubuntu', sans-serif;
+    transition: background-color 0.3s, color 0.3s;
+
+    border: none;
+    border-bottom: 4px solid blue;
+    /* border-radius: 5px; */
+    overflow: hidden;
+}
+
+#filter-year:focus {
+    outline: none;
+    background-color: white;
+    color: black;
 }
 
 #loading-icon-container {
