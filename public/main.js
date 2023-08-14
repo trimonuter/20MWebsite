@@ -63,10 +63,10 @@ function createCard(rank, data){
         }
     }
 
+    // Collapse dropdown when dropdowns:collapsed
     if (!dropdownsCollapsed) {
         dropdown.style.maxHeight = '90px';
     }
-    // Collapse dropdown when dropdowns:collapsed
 
     // Green title for non-sequel entries
     const cardRank = clone.querySelector('[data-rank]');
@@ -151,7 +151,7 @@ async function freeze(ms) {
 
 // ===================== Main program =====================
 // ~~~~~~~~~~ Get top anime data ~~~~~~~~~~
-let animeData = {};
+let animeData = [];
 let iterationDelay = 400;
 let incorrectRankEntries = [43608];
 let noSequel = 0;
@@ -173,7 +173,9 @@ let tddColor = '#FF5F1F';
     toggleDropdown.addEventListener('click', toggleDropdownFunction);
     while (currentPage <= 10) {
         // Array of anime data, each data is an object
-        const data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${currentPage + 1}`);
+        let data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${currentPage + 1}`);
+        data = data.sort((a, b) => a.rank - b.rank)
+        
         console.log(data);
 
         // Iterate through every object in data
@@ -226,15 +228,17 @@ async function pushSingleAnimeData(obj) {
         highPopularity: obj.members > 700000
     }
 
-    if (incorrectRankEntries.includes(obj.mal_id)) {
-        switch (obj.mal_id) {
-            case 43608: // Kaguya-sama, Rank 9
-                animeData[9] = dat;
-                break
-        }
-    } else {
-        animeData[obj.rank] = dat;
-    }
+    animeData.push(dat);
+
+//     if (incorrectRankEntries.includes(obj.mal_id)) {
+//         switch (obj.mal_id) {
+//             case 43608: // Kaguya-sama, Rank 9
+//                 animeData[9] = dat;
+//                 break
+//         }
+//     } else {
+//         animeData[obj.rank] = dat;
+//     }
 }
 
 // Add cards to HTML page
@@ -248,14 +252,14 @@ function appendCards() {
     toggleDropdown.removeEventListener('click', toggleDropdownFunction)
     // Add cards to main
     for (i = keyStart; i <= keyEnd; i++) {
-        if (Object.keys(animeData).includes(`${i}`)) {
-            // Counter for no-sequel rank
-            noSequel += animeData[i].isSequel ? 0 : 1;
-            animeData[i].noSequelRank = noSequel;
-        
-            const card = createCard(i, animeData[i]);
-            main.append(card);
-        }
+        // Counter for no-sequel rank
+        noSequel += animeData[i - 1].isSequel ? 0 : 1;
+        animeData[i - 1].noSequelRank = noSequel;
+    
+        const card = createCard(i, animeData[i - 1]);
+        main.append(card);
+        // if (Object.keys(animeData).includes(`${i}`)) {
+        // }
     }
 
     // Update toggle sequels event listener
