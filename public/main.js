@@ -69,19 +69,7 @@ function createCard(rank, data){
     }
 
     // Only show filtered cards when appending
-    const dataSeason = card.querySelector('[data-season]').textContent;
-    if (query === '') {
-        card.style.display = 'flex';
-        dropdown.style.display = 'flex';
-    } else {
-        if (!(dataSeason.includes(query))) {
-            card.style.display = 'none';
-            dropdown.style.display = 'none';
-        } else {
-            card.style.display = 'flex';
-            dropdown.style.display = 'flex';
-        }
-    }
+    filterCard(card);
 
     // Green title for non-sequel entries
     const cardRank = clone.querySelector('[data-rank]');
@@ -182,7 +170,8 @@ let dropdownsCollapsed = true;
 let toggleDropdown = document.getElementById('toggle-dropdown');
 let tddColor = '#FF5F1F';
 
-let query = '';
+let filterQuery = '';
+let searchbarQuery = '';
 
 // Main code for fetching anime data
 (async () => {
@@ -291,6 +280,10 @@ function appendCards() {
 const filterYear = document.getElementById('filter-year');
 filterYear.addEventListener('input', filterYearFunction)
 
+// Filter results by title (searchbar)
+const searchbar = document.getElementById('search-input');
+searchbar.addEventListener('input', searchbarFunction)
+
 // ===================== Event Listeners =====================
 function toggleSequelsFunction() {
     tsColor = tsColor === 'red' ? 'green' : 'red';
@@ -312,8 +305,8 @@ function toggleSequelsFunction() {
 
         card.querySelector('.rank').textContent = showSequels ? card.dataset.sequelRank : card.dataset.nosequelRank;
         if (card.dataset.isSequel === 'true') {
-            card.style.display = (showSequels && dataSeason.includes(query)) ? 'flex' : 'none';
-            dropdown.style.display = (showSequels && dataSeason.includes(query)) ? 'flex' : 'none';
+            card.style.display = (showSequels && dataSeason.includes(filterQuery)) ? 'flex' : 'none';
+            dropdown.style.display = (showSequels && dataSeason.includes(filterQuery)) ? 'flex' : 'none';
         }
     })
 }
@@ -340,30 +333,37 @@ function toggleDropdownFunction() {
 }
 
 function filterYearFunction() {
-    query = filterYear.value;
+    filterQuery = filterYear.value;
     const cardList = document.querySelectorAll('.card');
-    console.log(query)
+    console.log(filterQuery)
 
-    cardList.forEach(card => {
-        console.log(card.querySelector('.title').textContent)
-        const dropdown = card.nextElementSibling;
-        const dataSeason = card.querySelector('[data-season]').textContent;
-        // if (query === '') {
-        //     card.style.display = 'flex';
-        //     dropdown.style.display = 'flex';
-        // } else {
-        if (!(dataSeason.includes(query))) {
-            card.style.display = 'none';
-            dropdown.style.display = 'none';
+    cardList.forEach(card => filterCard(card));
+}
+
+function searchbarFunction() {
+    searchbarQuery = searchbar.value.toLowerCase();
+    const cardList = document.querySelectorAll('.card');
+
+    cardList.forEach(card => filterCard(card))
+}
+
+function filterCard(card) {
+    const dropdown = card.nextElementSibling;
+    const dataSeason = card.querySelector('[data-season]').textContent;
+    const title = card.querySelector('.title').textContent.toLowerCase();
+
+    const titleInSearchbar = title.includes(searchbarQuery);
+    const yearInYearFilter = dataSeason.includes(filterQuery);
+    if ((!titleInSearchbar) || (!yearInYearFilter)) {
+        card.style.display = 'none';
+        dropdown.style.display = 'none';
+    } else {
+        if ((card.dataset.isSequel === 'false')) {
+            card.style.display = 'flex';
+            dropdown.style.display = 'flex';
         } else {
-            if ((card.dataset.isSequel === 'false')) {
-                card.style.display = 'flex';
-                dropdown.style.display = 'flex';
-            } else {
-                card.style.display = showSequels ? 'flex' : 'none';
-                dropdown.style.display = showSequels ? 'flex' : 'none';
-            }
-            }
-        // }
-    })
+            card.style.display = showSequels ? 'flex' : 'none';
+            dropdown.style.display = showSequels ? 'flex' : 'none';
+        }
+    }
 }
