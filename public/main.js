@@ -48,7 +48,12 @@ function createCard(rank, data){
         dropdown.style.maxHeight = dropdown.style.maxHeight === '0px' ? `${dropdown.scrollHeight}px` : dropdown.style.maxHeight === '' ? `${dropdown.scrollHeight}px`: '0px';
     })
 
-    // Green rank for non-sequel entries
+    // Dropdown opened by default for highest ranked anime
+    if (rank === 1) {
+        dropdown.style.maxHeight = '90px';
+    }
+
+    // Green title for non-sequel entries
     const cardRank = clone.querySelector('[data-rank]');
     const titleContainer = clone.querySelector('.title-container')
     const dropdownNSR = clone.querySelector('[data-nsr]');
@@ -143,6 +148,9 @@ let toggleSequels = document.getElementById('toggle-sequels');
 let tsColor = 'red';
 let showSequels = true;
 
+let toggleDropdown = document.getElementById('toggle-dropdown');
+let tddColor = '#FF5F1F';
+
 // Main code for fetching anime data
 (async () => {
     while (currentPage <= 10) {
@@ -219,7 +227,8 @@ function appendCards() {
 
     // Remove toggle sequels event listener
     if (currentPage > 0) {
-        toggleSequels.removeEventListener('click', toggleSequelsFunction)
+        toggleSequels.removeEventListener('click', toggleSequelsFunction);
+        toggleDropdown.removeEventListener('click', toggleDropdownFunction)
     }
     // Add cards to main
     for (i = keyStart; i <= keyEnd; i++) {
@@ -232,9 +241,11 @@ function appendCards() {
             main.append(card);
         }
     }
+
     // Update toggle sequels event listener
     cardList = document.querySelectorAll('.card');
     toggleSequels.addEventListener('click', toggleSequelsFunction)
+    toggleDropdown.addEventListener('click', toggleDropdownFunction)
 
     console.log(animeData)
 }
@@ -262,5 +273,24 @@ function toggleSequelsFunction() {
             card.style.display = showSequels ? 'flex' : 'none';
             dropdown.style.display = showSequels ? 'flex' : 'none';
         }
+    })
+}
+
+function toggleDropdownFunction() {
+    tddColor = tddColor === '#FF5F1F' ? '#70ff83' : '#FF5F1F';
+    
+    // Toggle button color
+    toggleDropdown.style.backgroundColor = `${tddColor}`;
+    toggleDropdown.style.color = 'white';
+    toggleDropdown.style.border = `5px solid ${tddColor}`;
+    
+    // Toggle button text
+    toggleDropdown.textContent = tddColor === '#FF5F1F' ? 'Dropdowns: collapsed' : 'Dropdowns: expanded'
+
+    console.log('toggled');
+    const disable = tddColor === '#FF5F1F';
+    cardList.forEach(card => {
+        const dropdown = card.nextElementSibling;
+        dropdown.style.maxHeight = disable ? '0px' : '90px';
     })
 }

@@ -75,6 +75,7 @@ a {
     padding-bottom: 0;
     margin-top: 12px;
     justify-content: center;
+    gap: 15px;
 }
 
 #toggle-sequels {
@@ -91,6 +92,24 @@ a {
 }
 
 #toggle-sequels:hover {
+    cursor: pointer !important;
+    border: 5px solid white !important;
+}
+
+#toggle-dropdown {
+    margin: 0;
+    padding: 7px;
+
+    background-color: #FF5F1F;
+    color: white;
+    border-radius: 10px;
+    border: 5px solid #FF5F1F;
+    
+    transition: background-color 0.3s;
+    user-select: none;
+}
+
+#toggle-dropdown:hover {
     cursor: pointer !important;
     border: 5px solid white !important;
 }
