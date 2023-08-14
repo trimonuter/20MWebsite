@@ -1,10 +1,14 @@
-body {
-    background-color: #1e0f3c;
-    color: rgb(54, 50, 64);
+html, body {
     display: flex;
     flex-direction: column;
-    font-family: 'Ubuntu', sans-serif;
     margin: 0;
+    /* padding: 0; */
+    width: 100vw;
+    /* position: fixed; */
+
+    background-color: #1e0f3c;
+    color: rgb(54, 50, 64);
+    font-family: 'Ubuntu', sans-serif;
 }
 
 a {
@@ -13,16 +17,17 @@ a {
 }
 
 #hidden-navbar {
-    height: 70px;
+    height: 4em;
 }
 
 #navbar {
     display: flex;
+    flex-direction: row;
+    align-items: center;
     position: fixed;
     width: 100%;
-    height: 70px;
-    flex-direction: row;
-    gap: 20px;
+    height: 4em;
+    gap: 5%;
     background-color: #7453ED;
     justify-content: center;
     z-index: 100;
@@ -40,11 +45,13 @@ a {
 #searchbar {
     display: flex;
     flex-direction: row;
-    margin: 20px auto 0 auto;
+    /* margin: 20px auto 0 auto; */
+    margin-top: 20px;
+    justify-content: center;
 }
 
 #search-input {
-    width: 100%;
+    width: 55%;
     transition: all 0.3s;
     
     background-color: #1e0f3c;
@@ -69,8 +76,10 @@ a {
 
 #filters-container {
     display: flex;
+    width: 80%;
     padding: 8px;
     padding-bottom: 0;
+    margin: 0 auto;
     margin-top: 12px;
     justify-content: center;
     gap: 15px;
@@ -180,11 +189,13 @@ a {
 }
 
 main {
-    margin: 0 20px;
+    margin: 0 auto;
+    max-width: 1000px;
     display: flex;
     flex-direction: column;
     /* gap: 15px; */
     align-items: center;
+    justify-content: center;
 }
 
 /* .card-container {
