@@ -1,16 +1,22 @@
 import { useState, useEffect, createContext, useContext } from 'react';
 
 const CollapseContext = createContext();
+const TitleFilterContext = createContext();
+const SetTitleFilterContext = createContext();
 
 function App() {
   const [cards, setCards] = useState([]);
   const [collapseCards, setCollapseCards] = useState(true);
   const [dropdownColor, setDropdownColor] = useState('orange-400')
+  const [titleFilter, setTitleFilter] = useState('');
 
   useEffect(() => {
     mainProgram(setCards);
   }, [])
 
+  useEffect(() => {
+    console.log(titleFilter)
+  }, [titleFilter])
   function toggleDropdown() {
     setCollapseCards(!collapseCards)
     const newColor = dropdownColor === 'orange-400' ? 'green-400' : 'orange-400'
@@ -22,7 +28,9 @@ function App() {
       <Navbar />
 
       <div className="flex justify-center">
-        <Searchbar />
+        <SetTitleFilterContext.Provider value={setTitleFilter}>
+          <Searchbar />
+        </SetTitleFilterContext.Provider>
       </div>
 
       <div className="flex justify-center my-3 gap-3">
@@ -36,10 +44,12 @@ function App() {
         </div>
       </div>
 
-      <CollapseContext.Provider value={collapseCards}>      
-        <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu">
-          {cards}
-        </main>
+      <CollapseContext.Provider value={collapseCards}>
+        <TitleFilterContext.Provider value={titleFilter}>
+          <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu">
+            {cards}
+          </main>
+        </TitleFilterContext.Provider>      
       </CollapseContext.Provider>
     </div>
   );
@@ -59,8 +69,15 @@ function Navbar() {
 }
 
 function Searchbar() {
+  const setTitleFilter = useContext(SetTitleFilterContext)
+
+  function filterTitle(event) {
+    // console.log(event.target.value);
+    setTitleFilter(event.target.value);
+  }
+  
   return (
-    <input type="text" name="" placeholder="🔍 Find a title..." className="mt-3 focus:outline-none bg-[#27374D] border-b-4 border-blue-700 text-2xl sm:text-3xl md:text-4xl lg:text-5xl w-2/4 lg:max-w-[500px] text-white focus:bg-white focus:text-black transition-colors duration-300"/>
+    <input type="text" onChange={filterTitle} name="" placeholder="🔍 Find a title..." className="mt-3 p-2 focus:outline-none bg-[#27374D] border-b-4 border-blue-700 text-2xl sm:text-3xl md:text-4xl lg:text-5xl w-2/4 lg:max-w-[500px] text-white focus:bg-white focus:text-black transition-colors duration-300"/>
   )
 }
 
@@ -68,12 +85,23 @@ function CardContainer({rank, data}) {
   const [collapse, setCollapse] = useState(true);
   const collapseCards = useContext(CollapseContext);
 
+  const titleFilter = useContext(TitleFilterContext);
+  let show = 'hidden'
+  if (data.synonyms.length > 0) {
+    data.synonyms.forEach(title => {
+      if (title.toLowerCase().includes(titleFilter.toLowerCase())) {
+        show = 'block';
+      }
+    })
+  }
+  // const show = data.title.toLowerCase().includes(titleFilter) ? 'block' : 'hidden';
+
   useEffect(() => {
     setCollapse(collapseCards);
   }, [collapseCards])
 
   return (
-    <div className='font-bold select-none w-[85vw]'>
+    <div className={`font-bold select-none w-[85vw] ${show}`}>
       <Card rank={rank} data={data} col={collapse} func={setCollapse}/>
       <div className={`bg-purple-800 rounded-b-md ${(collapse) ? 'max-h-11' : 'max-h-40'} overflow-hidden transition-all duration-300`}>
         <CardDropdown rank={rank} data={data}/>
