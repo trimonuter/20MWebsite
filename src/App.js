@@ -17,11 +17,14 @@ function App() {
   useEffect(() => {
     console.log(titleFilter)
   }, [titleFilter])
+
   function toggleDropdown() {
     setCollapseCards(!collapseCards)
     const newColor = dropdownColor === 'orange-400' ? 'green-400' : 'orange-400'
     setDropdownColor(newColor);
   }
+
+  const [showTooltip, setShowTooltip] = useState(false)
 
   return (
     <div className="App">
@@ -44,6 +47,13 @@ function App() {
         </div>
       </div>
 
+      <div className='flex justify-center text-white mt-8 text-3xl'>
+        <div className='relative' onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => {setShowTooltip(false)}}>
+          <h1>Hover me</h1>
+          <div className={`absolute bg-gray-500 ${showTooltip ?'opacity-80' : 'opacity-0' } z-10 p-4 rounded-md -translate-y-[6.5rem] transition-all duration-300`}>Hello</div>
+        </div>
+      </div>
+
       <CollapseContext.Provider value={collapseCards}>
         <TitleFilterContext.Provider value={titleFilter}>
           <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu">
@@ -51,6 +61,7 @@ function App() {
           </main>
         </TitleFilterContext.Provider>      
       </CollapseContext.Provider>
+
     </div>
   );
 }
@@ -126,7 +137,7 @@ function Card({rank, data, col, func}){
   return (
   <>
     <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[100%] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer`}>
-      <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[#39FF14]`}>{rank}</h1>
+      <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[${data.isSequel ? '#352b52' : '#39FF14'}]`}>{rank}</h1>
       <img data-poster src={`${data.posterURL}`} className='max-h-[100%]'/>
 
       {/* Title container */}
