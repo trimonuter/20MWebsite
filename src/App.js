@@ -37,7 +37,7 @@ function App() {
       </div>
 
       <CollapseContext.Provider value={collapseCards}>      
-        <main className="flex flex-col items-center gap-3 text-[#352b52]">
+        <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu">
           {cards}
         </main>
       </CollapseContext.Provider>
@@ -73,9 +73,9 @@ function CardContainer({rank, data}) {
   }, [collapseCards])
 
   return (
-    <div className='font-bold select-none'>
+    <div className='font-bold select-none w-[85vw]'>
       <Card rank={rank} data={data} col={collapse} func={setCollapse}/>
-      <div className={`bg-purple-800 rounded-b-md ${(collapse) ? 'max-h-11' : 'max-h-28'} overflow-hidden transition-all duration-300`}>
+      <div className={`bg-purple-800 rounded-b-md ${(collapse) ? 'max-h-11' : 'max-h-40'} overflow-hidden transition-all duration-300`}>
         <CardDropdown rank={rank} data={data}/>
       </div>
     </div>
@@ -97,14 +97,14 @@ function Card({rank, data, col, func}){
 
   return (
   <>
-    <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[85vw] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer`}>
-      <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[${data.isSequel ? '#352b52' : '#39FF14'}]`}>{rank}</h1>
+    <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[100%] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer`}>
+      <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[#39FF14]`}>{rank}</h1>
       <img data-poster src={`${data.posterURL}`} className='max-h-[100%]'/>
 
       {/* Title container */}
       <div className={`flex flex-col gap-0 text-[${data.isSequel ? '#352b52' : hover ? 'white': '#39FF14'}]`}>
-        <h1 data-title className='text-xl'>{data.title}</h1>
-        <h3 data-season className='text-xs capitalize'>{data.season}</h3>
+        <h1 data-title className='text-2xl'>{data.title}</h1>
+        <h3 data-season className='capitalize'>{data.season}</h3>
       </div>
 
       {/* Score container */}
@@ -118,10 +118,30 @@ function Card({rank, data, col, func}){
 }
 
 function CardDropdown({rank, data}) {
+  const tagsList = [];
+  if (!(data.tags === null)) {
+    let i = 0;
+    const tagsLength = data.tags.length;
+    while (i < tagsLength) {
+      if ((data.tags[i].name.includes('Protagonist')) || (data.tags[i].name.includes('Primarily'))) {
+        i += 1;
+      } else {
+        tagsList.push(data.tags[i]);
+        i += 1;
+        if (tagsList.length >= 5) {
+          break
+        }
+      }
+
+    }
+  }
   return (
-    <>    
-      <div className="ml-2 flex gap-3">
-        <h2 className='mt-2 bg-gray-800 text-slate-300 flex gap-2 items-center px-1 py-0.5 rounded-md'>
+    <>
+      <div className="mt-2 ml-2 flex flex-wrap gap-3 w-[100%] justify-center">
+        {tagsList.map(tag => (
+          <Tag dataTag={tag} />
+        ))}
+        {/* <h2 className='mt-2 bg-gray-800 text-slate-300 flex gap-2 items-center px-1 py-0.5 rounded-md'>
           test
           <h5 className='text-sm'>30%</h5>
         </h2>
@@ -134,10 +154,10 @@ function CardDropdown({rank, data}) {
         <h2 className='mt-2 bg-gray-800 text-slate-300 flex gap-2 items-center px-1 py-0.5 rounded-md'>
           test
           <h5 className='text-sm'>30%</h5>
-        </h2>
+        </h2> */}
       </div>
 
-      <div className='flex justify-between p-4 pt-3 [&>*]:rounded-md'>
+      <div className='flex justify-between p-4 [&>*]:rounded-md'>
         <div className={`flex flex-col items-center px-2 py-1 bg-purple-600 text-[${data.isSequel ? '#352b52' : '#39FF14'}]`}>
           <h2>#{data.noSequelRank}</h2>
           <h2>Rank (no sequels)</h2>
@@ -154,6 +174,18 @@ function CardDropdown({rank, data}) {
         </div>
       </div>
     </>
+  )
+}
+
+function Tag({dataTag}) {
+  if (!(dataTag.hasOwnProperty('name')) || !(dataTag.hasOwnProperty('rank'))) {
+    return;
+  }
+  return (
+  <h2 className={` bg-gray-800 text-slate-300 flex gap-2 items-center px-2 py-0.5 rounded-md whitespace-nowrap`}>
+    {dataTag.name}
+    <h5 className='text-sm'>{dataTag.rank}%</h5>
+  </h2>
   )
 }
 
@@ -268,8 +300,15 @@ async function mainProgram(func) {
 
 async function pushSingleAnimeData(obj, list) {
   const singleAnimeData = await fetchData(`https://api.jikan.moe/v4/anime/${obj.mal_id}/full`);
-  const relationsValues = Object.values(singleAnimeData.relations).map(obj => obj.relation);
 
+  const [anilistData, anilistRemaining, anilistStatus] = await fetchAnilist(obj.mal_id);
+  console.log(anilistRemaining)
+  if (anilistRemaining <= 3) {
+    console.log('Nearing anilist rate limit');
+    await new Promise(res => setTimeout(res, 7000));
+  }
+
+  const relationsValues = Object.values(singleAnimeData.relations).map(obj => obj.relation);
   const isSequel = relationsValues.includes('Prequel') ? true : false;
   noSequel += isSequel ? 0 : 1;
   console.log(isSequel)
@@ -286,8 +325,51 @@ async function pushSingleAnimeData(obj, list) {
       isSequel: isSequel,
       noSequelRank: isSequel ? ' -' : noSequel,
       popularity: obj.popularity,
-      highPopularity: obj.members > 700000
+      highPopularity: obj.members > 700000,
+      tags: !(anilistStatus === 404) ? anilistData.tags : [],
+      synonyms: !(anilistStatus === 404) ? [...(Object.values(anilistData.title)), ...(anilistData.synonyms)] : []
   }
 
+  console.log(dat.synonyms)
   list.push(<CardContainer rank={currentRank} data={dat}/>);
+}
+
+async function fetchAnilist(id) {
+  const query = `
+  query {
+    Media (idMal: ${id}, type: ANIME) {
+      id
+      title {
+        romaji
+        english
+        native
+      }
+      synonyms
+      tags {
+          name
+          description
+          category
+          rank
+      }
+    }
+  }
+  `
+  const url = 'https://graphql.anilist.co';
+  const options = {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+      },
+      body: JSON.stringify({
+          query: query,
+      })
+  }
+
+  const res = await fetch(url, options);
+  const remaining = res.headers.get('X-RateLimit-Remaining');
+  const status = res.status
+
+  const dat = await res.json();
+  return [dat.data.Media, remaining, status];
 }
