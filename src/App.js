@@ -3,15 +3,41 @@ import { useState, useEffect, createContext, useContext } from 'react';
 const CollapseContext = createContext();
 const TitleFilterContext = createContext();
 const SetTitleFilterContext = createContext();
+let page = 0;
+let running = false;
 
 function App() {
   const [cards, setCards] = useState([]);
   const [collapseCards, setCollapseCards] = useState(true);
   const [dropdownColor, setDropdownColor] = useState('orange-400')
   const [titleFilter, setTitleFilter] = useState('');
+  const [atScrollHeight, setAtScrollHeight] = useState(false);
+  const [scrollFunctionRunning, setScrollFunctionRunning] = useState(false);
 
+  async function getData() {
+    const res = await fetch('http://localhost:5000/anime');
+    const data = await res.json();
+    console.log('running')
+
+    console.log(data)
+    let i = (50 * page);
+    while (i < (50 * (page + 3))) {
+      const newCard = <CardContainer rank={i + 1} data={data.data[i]} />
+      setCards(cards => [...cards, newCard])
+
+      i += 1;
+    }
+  }
   useEffect(() => {
-    mainProgram(setCards);
+    getData();
+  }, [])
+  
+  useEffect(() => {
+    (async () => {
+      const res = await fetch('http://localhost:5000/test')
+      const dat = await res.json()
+      console.log(dat.data)
+    })()
   }, [])
 
   useEffect(() => {
@@ -43,14 +69,14 @@ function App() {
 
         <div className="flex-col overflow-hidden">
           <h5 className="text-white text-sm font-semibold">Filter by year/season: </h5>
-          <input type="text" name="" placeholder="e.g. 2011" className="bg-[#27374D] border-b-4 border-blue-700 text-sm text-white focus:outline-none focus:bg-white focus:text-black transition-colors duration-200"/>
+          <input type="text" name="" placeholder="e.g. 2011" className="bg-[#27374D] border-b-4 border-blue-700 text-sm text-white focus:outline-none focus:bg-white focus:text-black transition-colors duration-200" />
         </div>
       </div>
 
       <div className='flex justify-center text-white mt-8 text-3xl'>
-        <div className='relative' onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => {setShowTooltip(false)}}>
+        <div className='relative' onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => { setShowTooltip(false) }}>
           <h1>Hover me</h1>
-          <div className={`absolute bg-gray-500 ${showTooltip ?'opacity-80' : 'opacity-0' } z-10 p-4 rounded-md -translate-y-[6.5rem] transition-all duration-300`}>Hello</div>
+          <div className={`absolute bg-gray-500 ${showTooltip ? 'opacity-80' : 'opacity-0'} z-10 p-4 rounded-md -translate-y-[6.5rem] transition-all duration-300`}>Hello</div>
         </div>
       </div>
 
@@ -59,7 +85,7 @@ function App() {
           <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu">
             {cards}
           </main>
-        </TitleFilterContext.Provider>      
+        </TitleFilterContext.Provider>
       </CollapseContext.Provider>
 
     </div>
@@ -86,13 +112,13 @@ function Searchbar() {
     // console.log(event.target.value);
     setTitleFilter(event.target.value);
   }
-  
+
   return (
-    <input type="text" onChange={filterTitle} name="" placeholder="🔍 Find a title..." className="mt-3 p-2 focus:outline-none bg-[#27374D] border-b-4 border-blue-700 text-2xl sm:text-3xl md:text-4xl lg:text-5xl w-2/4 lg:max-w-[500px] text-white focus:bg-white focus:text-black transition-colors duration-300"/>
+    <input type="text" onChange={filterTitle} name="" placeholder="🔍 Find a title..." className="mt-3 p-2 focus:outline-none bg-[#27374D] border-b-4 border-blue-700 text-2xl sm:text-3xl md:text-4xl lg:text-5xl w-2/4 lg:max-w-[500px] text-white focus:bg-white focus:text-black transition-colors duration-300" />
   )
 }
 
-function CardContainer({rank, data}) {
+function CardContainer({ rank, data }) {
   const [collapse, setCollapse] = useState(true);
   const collapseCards = useContext(CollapseContext);
 
@@ -100,8 +126,10 @@ function CardContainer({rank, data}) {
   let show = 'hidden'
   if (data.synonyms.length > 0) {
     data.synonyms.forEach(title => {
-      if (title.toLowerCase().includes(titleFilter.toLowerCase())) {
-        show = 'block';
+      if (title !== null) {
+        if (title.toLowerCase().includes(titleFilter.toLowerCase())) {
+          show = 'block';
+        }
       }
     })
   }
@@ -113,17 +141,17 @@ function CardContainer({rank, data}) {
 
   return (
     <div className={`font-bold select-none w-[85vw] ${show}`}>
-      <Card rank={rank} data={data} col={collapse} func={setCollapse}/>
+      <Card rank={rank} data={data} col={collapse} func={setCollapse} />
       <div className={`bg-purple-800 rounded-b-md ${(collapse) ? 'max-h-11' : 'max-h-40'} overflow-hidden transition-all duration-300`}>
-        <CardDropdown rank={rank} data={data}/>
+        <CardDropdown rank={rank} data={data} />
       </div>
     </div>
   )
 }
 
-function Card({rank, data, col, func}){
+function Card({ rank, data, col, func }) {
   const [hover, setHover] = useState(false)
-  
+
   function collapse() {
     func(!col)
   }
@@ -135,28 +163,28 @@ function Card({rank, data, col, func}){
   }
 
   return (
-  <>
-    <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[100%] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer`}>
-      <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[${data.isSequel ? '#352b52' : '#39FF14'}]`}>{rank}</h1>
-      <img data-poster src={`${data.posterURL}`} className='max-h-[100%]'/>
+    <>
+      <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[100%] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer`}>
+        <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[${data.isSequel ? '#352b52' : '#39FF14'}]`}>{rank}</h1>
+        <img data-poster src={`${data.posterURL}`} className='max-h-[100%]' />
 
-      {/* Title container */}
-      <div className={`flex flex-col gap-0 text-[${data.isSequel ? '#352b52' : hover ? 'white': '#39FF14'}]`}>
-        <h1 data-title className='text-2xl'>{data.title}</h1>
-        <h3 data-season className='capitalize'>{data.season}</h3>
-      </div>
+        {/* Title container */}
+        <div className={`flex flex-col gap-0 text-[${data.isSequel ? '#352b52' : hover ? 'white' : '#39FF14'}]`}>
+          <h1 data-title className='text-2xl'>{data.title}</h1>
+          <h3 data-season className='capitalize'>{data.season}</h3>
+        </div>
 
-      {/* Score container */}
-      <div className={`ml-auto bg-purple-800 p-1 flex flex-col items-center text-[${data.highPopularity ? 'yellow' : '#352b52'}]`}>
-        <h1 data-score className='text-xl'>{data.score}</h1>
-        <h4 data-members className='text-xs'>{data.members}</h4>
+        {/* Score container */}
+        <div className={`ml-auto bg-purple-800 p-1 flex flex-col items-center text-[${data.highPopularity ? 'yellow' : '#352b52'}]`}>
+          <h1 data-score className='text-xl'>{data.score}</h1>
+          <h4 data-members className='text-xs'>{data.members}</h4>
+        </div>
       </div>
-    </div>
-  </>
+    </>
   )
 }
 
-function CardDropdown({rank, data}) {
+function CardDropdown({ rank, data }) {
   const tagsList = [];
   if (!(data.tags === null)) {
     let i = 0;
@@ -216,199 +244,14 @@ function CardDropdown({rank, data}) {
   )
 }
 
-function Tag({dataTag}) {
+function Tag({ dataTag }) {
   if (!(dataTag.hasOwnProperty('name')) || !(dataTag.hasOwnProperty('rank'))) {
     return;
   }
   return (
-  <h2 className={` bg-gray-800 text-slate-300 flex gap-2 items-center px-2 py-0.5 rounded-md whitespace-nowrap`}>
-    {dataTag.name}
-    <h5 className='text-sm'>{dataTag.rank}%</h5>
-  </h2>
+    <h2 className={` bg-gray-800 text-slate-300 flex gap-2 items-center px-2 py-0.5 rounded-md whitespace-nowrap`}>
+      {dataTag.name}
+      <h5 className='text-sm'>{dataTag.rank}%</h5>
+    </h2>
   )
-}
-
-// Helper functions
-// Freeze code for a certain duration (in miliseconds)
-async function freeze(ms){
-  await new Promise(resolve => setTimeout(resolve, ms));
-}
-
-function formatNumber(num) {
-  if (num >= 1000000) {
-      const round = num / 1000000;
-      return `${round.toFixed(1)}M`;
-
-  } else if (num >= 10000) {
-      const round = num / 1000;
-      return `${round.toFixed(0)}K`;
-
-  } else if (num >= 1000) {
-      const round = num / 1000;
-      return `${round.toFixed(1)}K`;
-
-  } else {
-      return `${num}`;
-  }
-}
-
-// Format season string
-function formatSeason(dat) {
-  if (dat.season) {
-      return `${dat.season} ${dat.year}`
-  }
-  else {
-      const airedOn = dat.aired.prop.from;
-      let season;
-      switch (true) {
-          case airedOn.month < 4:
-              season = 'Winter';
-              break;
-          case airedOn.month < 7:
-              season = 'Spring';
-              break;
-          case airedOn.month < 10:
-              season = 'Summer';
-              break;
-          case airedOn.month < 13:
-              season = 'Fall';
-      }
-
-      return `${season} ${airedOn.year}`
-  }
-}
-
-// Fetch a URL and return response.data
-async function fetchData(url) {
-  const res = await fetch(url);
-  const resJSON = await res.json();
-  const data = resJSON.data;
-
-  return data;
-}
-
-// Main Program
-let currentPage = 0;
-let currentRank = 0;
-let noSequel = 0;
-let iterationDelay = 400;
-let revert;
-
-async function mainProgram(func) {
-  while (true) {
-    // Array of anime data, each data is an object
-    let data = await fetchData(`https://api.jikan.moe/v4/top/anime?page=${currentPage + 1}`);
-    data = data.sort((a, b) => a.rank - b.rank)
-    
-    console.log(data);
-    console.log('running')
-    let animeList = [];
-
-    // Iterate through every object in data
-    for (const x of data) {
-      console.log(x.rank);
-      // console.log('ok')
-      await pushSingleAnimeData(x, animeList);
-
-      // Freeze requests for 0.4 seconds (1 second after 60 requests)
-      await freeze(iterationDelay);
-      await new Promise(res => setTimeout(res, iterationDelay))
-
-      // Change delay from 0.4s to 0.75s after 60 requests
-      if (x.rank % 60 === 0) {
-          revert = x.rank + 35;
-          await freeze(10000);
-          await new Promise(res => setTimeout(res, 10000))
-          iterationDelay = 750;
-      }
-      // Change delay from 0.75s to 0.45s after 30 requests
-      if (x.rank === revert) {
-          iterationDelay = 450
-      }
-    }
-
-    // Add cards to HTML page
-    func(previousList => [...previousList, ...animeList])
-    currentPage += 1;
-
-    // Freeze 1 second before fetching new page
-    await freeze(1000);
-    await new Promise(res => setTimeout(res, 1000))
-  }
-}
-
-async function pushSingleAnimeData(obj, list) {
-  const singleAnimeData = await fetchData(`https://api.jikan.moe/v4/anime/${obj.mal_id}/full`);
-
-  const [anilistData, anilistRemaining, anilistStatus] = await fetchAnilist(obj.mal_id);
-  console.log(anilistRemaining)
-  if (anilistRemaining <= 3) {
-    console.log('Nearing anilist rate limit');
-    await new Promise(res => setTimeout(res, 7000));
-  }
-
-  const relationsValues = Object.values(singleAnimeData.relations).map(obj => obj.relation);
-  const isSequel = relationsValues.includes('Prequel') ? true : false;
-  noSequel += isSequel ? 0 : 1;
-  console.log(isSequel)
-  currentRank += 1;
-
-  const dat = {
-      id: obj.mal_id,
-      title: obj.title,
-      posterURL: obj.images.jpg.image_url,
-      score: obj.score.toFixed(2),
-      season: formatSeason(obj),
-      members: formatNumber(obj.members),
-      URL: obj.url,
-      isSequel: isSequel,
-      noSequelRank: isSequel ? ' -' : noSequel,
-      popularity: obj.popularity,
-      highPopularity: obj.members > 700000,
-      tags: !(anilistStatus === 404) ? anilistData.tags : [],
-      synonyms: !(anilistStatus === 404) ? [...(Object.values(anilistData.title)), ...(anilistData.synonyms)] : []
-  }
-
-  console.log(dat.synonyms)
-  list.push(<CardContainer rank={currentRank} data={dat}/>);
-}
-
-async function fetchAnilist(id) {
-  const query = `
-  query {
-    Media (idMal: ${id}, type: ANIME) {
-      id
-      title {
-        romaji
-        english
-        native
-      }
-      synonyms
-      tags {
-          name
-          description
-          category
-          rank
-      }
-    }
-  }
-  `
-  const url = 'https://graphql.anilist.co';
-  const options = {
-      method: 'POST',
-      headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json',
-      },
-      body: JSON.stringify({
-          query: query,
-      })
-  }
-
-  const res = await fetch(url, options);
-  const remaining = res.headers.get('X-RateLimit-Remaining');
-  const status = res.status
-
-  const dat = await res.json();
-  return [dat.data.Media, remaining, status];
 }
