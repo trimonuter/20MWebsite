@@ -21,7 +21,7 @@ function App() {
 
     console.log(data)
     let i = (50 * page);
-    while (i < (50 * (page + 3))) {
+    while (i < 200) {
       const newCard = <CardContainer rank={i + 1} data={data.data[i]} />
       setCards(cards => [...cards, newCard])
 
@@ -73,16 +73,9 @@ function App() {
         </div>
       </div>
 
-      <div className='flex justify-center text-white mt-8 text-3xl'>
-        <div className='relative' onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => { setShowTooltip(false) }}>
-          <h1>Hover me</h1>
-          <div className={`absolute bg-gray-500 ${showTooltip ? 'opacity-80' : 'opacity-0'} z-10 p-4 rounded-md -translate-y-[6.5rem] transition-all duration-300`}>Hello</div>
-        </div>
-      </div>
-
       <CollapseContext.Provider value={collapseCards}>
         <TitleFilterContext.Provider value={titleFilter}>
-          <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu">
+          <main className="flex flex-col items-center gap-3 text-[#352b52] font-ubuntu overflow-x-hidden overflow-y-hidden">
             {cards}
           </main>
         </TitleFilterContext.Provider>
@@ -140,7 +133,7 @@ function CardContainer({ rank, data }) {
   }, [collapseCards])
 
   return (
-    <div className={`font-bold select-none w-[85vw] ${show}`}>
+    <div className={`font-bold select-none w-[85vw] ${show} relative`}>
       <Card rank={rank} data={data} col={collapse} func={setCollapse} />
       <div className={`bg-purple-800 rounded-b-md ${(collapse) ? 'max-h-11' : 'max-h-40'} overflow-hidden transition-all duration-300`}>
         <CardDropdown rank={rank} data={data} />
@@ -164,7 +157,7 @@ function Card({ rank, data, col, func }) {
 
   return (
     <>
-      <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[100%] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer`}>
+      <div onClick={collapse} onMouseOver={() => modifyTitle('enter')} onMouseLeave={() => modifyTitle('leave')} className={`flex gap-3 bg-[#5454C5] items-center h-24 w-[100%] py-3 px-3 [&>*]:rounded-md rounded-t-md hover:bg-green-400 hover:cursor-pointer relative z-0`}>
         <h1 data-rank className={`bg-purple-800 p-1 text-xl text-[${data.isSequel ? '#352b52' : '#39FF14'}]`}>{rank}</h1>
         <img data-poster src={`${data.posterURL}`} className='max-h-[100%]' />
 
@@ -208,20 +201,7 @@ function CardDropdown({ rank, data }) {
         {tagsList.map(tag => (
           <Tag dataTag={tag} />
         ))}
-        {/* <h2 className='mt-2 bg-gray-800 text-slate-300 flex gap-2 items-center px-1 py-0.5 rounded-md'>
-          test
-          <h5 className='text-sm'>30%</h5>
-        </h2>
-
-        <h2 className='mt-2 bg-gray-800 text-slate-300 flex gap-2 items-center px-1 py-0.5 rounded-md'>
-          test
-          <h5 className='text-sm'>30%</h5>
-        </h2>
-
-        <h2 className='mt-2 bg-gray-800 text-slate-300 flex gap-2 items-center px-1 py-0.5 rounded-md'>
-          test
-          <h5 className='text-sm'>30%</h5>
-        </h2> */}
+        {/* <h2 className='absolute z-50 -translate-y-5 opacity-95 text-yellow-200'>test</h2> */}
       </div>
 
       <div className='flex justify-between p-4 [&>*]:rounded-md'>
@@ -245,13 +225,15 @@ function CardDropdown({ rank, data }) {
 }
 
 function Tag({ dataTag }) {
-  if (!(dataTag.hasOwnProperty('name')) || !(dataTag.hasOwnProperty('rank'))) {
-    return;
-  }
+  const [showTagTooltip, setShowTagTooltip] = useState(false)
+
   return (
-    <h2 className={` bg-gray-800 text-slate-300 flex gap-2 items-center px-2 py-0.5 rounded-md whitespace-nowrap`}>
-      {dataTag.name}
-      <h5 className='text-sm'>{dataTag.rank}%</h5>
-    </h2>
+    <div onMouseEnter={() => setShowTagTooltip(true)} onMouseLeave={() => setShowTagTooltip(false)} className='flex items-center bg-gray-800 rounded-md text-slate-300'>
+      <h2 className={`relative flex gap-2 items-center px-2 py-0.5 rounded-md whitespace-nowrap`}>
+        {dataTag.name}
+      </h2>
+      <h5 className='text-sm pr-2'>{dataTag.rank}%</h5>
+      <h6 className={`absolute -translate-y-[2.2rem] ${showTagTooltip ? 'opacity-80' : 'opacity-0'} bg-gray-800 text-slate-300 px-2 py-0.5 rounded-md max-w-xl whitespace-nowrap overflow-x-auto transition-opacity duration-200`}>{dataTag.description}</h6>
+    </div>
   )
 }
